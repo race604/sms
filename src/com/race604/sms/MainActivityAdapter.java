@@ -1,5 +1,6 @@
 package com.race604.sms;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -108,6 +109,8 @@ public class MainActivityAdapter extends BaseAdapter{
 	
 	class HeadPhotoLoader extends ImageLoader {
 
+		static final int HEAD_SIZE = 55; // in dp
+		
 		public HeadPhotoLoader(Context context, int defualt_drawable) {
 			super(context, defualt_drawable);
 		}
@@ -120,9 +123,19 @@ public class MainActivityAdapter extends BaseAdapter{
 
 			InputStream input = ContactsContract.Contacts
 					.openContactPhotoInputStream(mContext.getContentResolver(), uri);
-
+			
 			if (input != null) {
-				Bitmap bitmap = BitmapFactory.decodeStream(input);
+				// Decode image size
+		        Bitmap bmp = BitmapFactory.decodeStream(input);
+		        float dpi = SmsApplication.get().getDensityDpi();
+				int dstSize = (int) (dpi * 55);
+
+				Bitmap bitmap = Bitmap.createScaledBitmap(bmp, dstSize, dstSize, false);
+				
+				try {
+					input.close();
+				} catch (IOException e) {
+				}
 				return bitmap;
 			} else {
 				return null;
