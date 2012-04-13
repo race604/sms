@@ -11,6 +11,9 @@ public class SmsApplication extends Application {
 	private static SmsApplication mTheApp;
 	private static float dmDensity = 0.0f;
 	
+	public static final String PREFER = "com.race604.sms";
+	public static final String NOTIFICATION_COUNT = "notification_count";
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
