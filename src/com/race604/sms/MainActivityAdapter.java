@@ -63,23 +63,29 @@ public class MainActivityAdapter extends BaseAdapter{
 		}
 		
 		ViewHolder holder = (ViewHolder) rowView.getTag();
-		final String phone = Utility.getCleanPhone(thread.latest.address);
-		ContactInfo contact = Utility.getCantactByPhone(mContext, phone);
-		String from = contact.displayName;
-		if (from == null) {
-			from = thread.latest.address;
-		}
-		holder.photo.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				if (v.getId() == R.id.headIv) {
-					Intent intent =new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+phone));
-					mContext.startActivity(intent);
-				}
+		String from;
+		if (thread.latest.address == null) {
+			from = "Draft";
+			mPhotoLoader.DisplayImage(null, holder.photo);
+		} else {
+			final String phone = Utility.getCleanPhone(thread.latest.address);
+			ContactInfo contact = Utility.getCantactByPhone(mContext, phone);
+			from = contact.displayName;
+			if (from == null) {
+				from = thread.latest.address;
 			}
-		});
-		mPhotoLoader.DisplayImage(String.valueOf(contact.contactId), holder.photo);
+			holder.photo.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					if (v.getId() == R.id.headIv) {
+						Intent intent =new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+phone));
+						mContext.startActivity(intent);
+					}
+				}
+			});
+			mPhotoLoader.DisplayImage(String.valueOf(contact.contactId), holder.photo);
+		}
 		
 		from += " (" + thread.count + ")";
 		holder.from.setText(from);

@@ -102,6 +102,7 @@ public class Utility {
 		Integer index;
 		SmsThread thread;
 		for (SmsInfo sms : smsList) {
+			
 			index = threadIds.get(sms.thread_id);
 			if (index == null) {
 				threadIds.put(sms.thread_id, list.size());
@@ -112,11 +113,26 @@ public class Utility {
 				list.add(thread);
 			} else {
 				thread = list.get(index);
+				if (thread.latest.address == null) {
+					thread.latest.address = sms.address;
+				}
 			}
+			
 			thread.count++;
 			thread.unread |= (sms.read == 0);
 		}
 		return list;
+	}
+	
+	private static String getContactNameByPhone(Context context, String phone) {
+		ContactInfo contact = Utility.getCantactByPhone(context, phone); 
+		if (contact == null) {
+			return null;
+		}
+		if (contact.displayName == null) {
+			return Utility.getCleanPhone(phone);
+		}
+		return contact.displayName;
 	}
 	
 	public static List<SmsInfo> getSmsAllByThreadId(Context context, long thread_id) {
@@ -146,6 +162,10 @@ public class Utility {
 	}
 	
 	public static ContactInfo getCantactByPhone(Context context, String phone) {
+		if (phone == null) {
+			return null;
+		}
+		
 		String num = getCleanPhone(phone);
 
 		ContactInfo contact = new ContactInfo();
