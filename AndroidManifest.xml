@@ -13,6 +13,7 @@
 	<uses-permission android:name="android.permission.RECEIVE_SMS" />
 	<uses-permission android:name="android.permission.CALL_PHONE" />
 	<uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+	<uses-permission android:name="android.permission.VIBRATE" />
 	
     <application android:name=".SmsApplication"
         android:icon="@drawable/ic_sms"

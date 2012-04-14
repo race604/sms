@@ -68,13 +68,20 @@ public class SmsReceiver extends BroadcastReceiver {
 			Intent notificationIntent = new Intent(appContext,
 					ThreadActivity.class);
 			notificationIntent.putExtra("id", thread_id);
+			
+			PendingIntent contentIntent = PendingIntent.getActivity(appContext,
+					0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
+
+			notification.setLatestEventInfo(context, contentTitle, sms.body,
+					contentIntent);
 
 			// LED light
 			notification.defaults |= Notification.DEFAULT_ALL;
 			notification.ledARGB = 0xffffffff;
 			notification.ledOnMS = 300;
-			notification.ledOffMS = 1000;
+			notification.ledOffMS = 400;
 			notification.flags |= Notification.FLAG_SHOW_LIGHTS;
+			notification.flags |= Notification.FLAG_AUTO_CANCEL;
 
 			SharedPreferences preference = appContext.getSharedPreferences(
 					SmsApplication.PREFER, 0);
@@ -82,16 +89,11 @@ public class SmsReceiver extends BroadcastReceiver {
 					SmsApplication.NOTIFICATION_COUNT, 0) + smsInfos.length;
 			notification.number = current_count;
 
-			PendingIntent contentIntent = PendingIntent.getActivity(appContext,
-					0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
-
-			notification.setLatestEventInfo(context, contentTitle, sms.body,
-					contentIntent);
-
 			notificationManager.notify(NOTIFY_NEW_SMS_RECEIVED, notification);
 
 			Editor editor = preference.edit();
 			editor.putInt(SmsApplication.NOTIFICATION_COUNT, current_count);
+			editor.commit();
 			// TextView textView = new TextView(context);
 			// textView.setText(sms.body);
 			// WindowManager.LayoutParams params = new
@@ -125,7 +127,7 @@ public class SmsReceiver extends BroadcastReceiver {
 			// }
 
 			// 禁止其他短信接收软件
-			// abortBroadcast();
+			abortBroadcast();
 		}
 
 	}

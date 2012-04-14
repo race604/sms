@@ -5,6 +5,8 @@ import java.util.List;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
@@ -173,6 +175,15 @@ public class ThreadActivity extends SherlockListActivity implements
 
 		mAdapter.addAll(list);
 		mAdapter.notifyDataSetChanged();
+		
+		SharedPreferences preference = getSharedPreferences(
+				SmsApplication.PREFER, 0);
+		int current_count = preference.getInt(
+				SmsApplication.NOTIFICATION_COUNT, 0);
+
+		Editor editor = preference.edit();
+		editor.putInt(SmsApplication.NOTIFICATION_COUNT, 0);
+		editor.commit();
 	}
 
 	@Override

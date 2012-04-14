@@ -179,7 +179,10 @@ public class Utility {
 				 ContactsContract.CommonDataKinds.Phone.CONTENT_URI, projection,
 				 ContactsContract.CommonDataKinds.Phone.NUMBER + " = ?",
 				 new String[] { num }, null);
-		 if (pCur.moveToFirst()) {
+		if (pCur == null) {
+			return null;
+		} 
+		if (pCur.moveToFirst()) {
 			 contact.displayName = pCur.getString(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 			 contact.contactId = pCur.getLong(pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
 			 pCur.close();
