@@ -15,7 +15,7 @@ import android.widget.EditText;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.race604.sms.model.SmsInfo;
+import com.race604.sms.model.MSInfo;
 import com.race604.sms.model.Utility;
 
 public class NewSmsActivity extends SherlockActivity implements OnClickListener {
@@ -115,7 +115,7 @@ public class NewSmsActivity extends SherlockActivity implements OnClickListener 
 //			imm.hideSoftInputFromWindow(mContentEt.getWindowToken(), 0);
 			
 			Intent intent = new Intent(NewSmsActivity.this, ThreadActivity.class);
-			SmsInfo sms = Utility.getASmsInfo(this, uri);
+			MSInfo sms = Utility.getAMSInfo(this, uri);
 			intent.putExtra("id", sms.thread_id);
 			startActivity(intent);
 			finish();

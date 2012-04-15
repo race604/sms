@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.race604.sms.model.ContactInfo;
-import com.race604.sms.model.SmsThread;
+import com.race604.sms.model.MSThread;
 import com.race604.sms.model.Utility;
 import com.race604.sms.utils.ImageLoader;
 
@@ -33,23 +33,23 @@ import android.widget.TextView;
 public class MainActivityAdapter extends BaseAdapter{
 
 	private final Activity mContext;
-	private final List<SmsThread> mThreadList;
+	private final List<MSThread> mThreadList;
 	private HeadPhotoLoader mPhotoLoader;
 	
-	public MainActivityAdapter(Activity context, List<SmsThread> threadList) {
+	public MainActivityAdapter(Activity context, List<MSThread> threadList) {
 		super();
 		mThreadList = threadList;
 		mContext = context;
 		mPhotoLoader = new HeadPhotoLoader(mContext, R.drawable.ic_contact);
 	}
 	
-	public SmsThread getItem(int position) {
+	public MSThread getItem(int position) {
 		return mThreadList.get(position);
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		final SmsThread thread = mThreadList.get(position);
+		final MSThread thread = mThreadList.get(position);
 		View rowView = convertView;
 		if (rowView == null) {
 			LayoutInflater inflater = mContext.getLayoutInflater();

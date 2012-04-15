@@ -21,7 +21,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.race604.sms.model.SmsInfo;
+import com.race604.sms.model.MSInfo;
 import com.race604.sms.model.Utility;
 
 public class ThreadActivity extends SherlockListActivity implements
@@ -86,7 +86,8 @@ public class ThreadActivity extends SherlockListActivity implements
 		case R.string.search:
 			break;
 		case R.string.call: {
-			Intent intent =new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+mPhone));
+			Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:"
+					+ mPhone));
 			startActivity(intent);
 			break;
 		}
@@ -116,16 +117,16 @@ public class ThreadActivity extends SherlockListActivity implements
 			for (String text : texts) {
 				Uri uri = Utility.saveSentSms(ThreadActivity.this, phone, text);
 
-				SmsInfo sms = Utility.getASmsInfo(ThreadActivity.this, uri);
+				MSInfo sms = Utility.getAMSInfo(ThreadActivity.this, uri);
 				mAdapter.add(sms);
 				Bundle bundle = new Bundle();
 				bundle.putParcelable(SmsSendStatusReceiver.SMS_URI, uri);
-				
+
 				Intent intent = new Intent(SmsSendStatusReceiver.SENT);
 				intent.putExtras(bundle);
 				sentPI = PendingIntent.getBroadcast(ThreadActivity.this, 0,
 						intent, PendingIntent.FLAG_UPDATE_CURRENT);
-				
+
 				intent = new Intent(SmsSendStatusReceiver.DELIVERED);
 				intent.putExtras(bundle);
 				deliveredPI = PendingIntent.getBroadcast(ThreadActivity.this,
@@ -151,7 +152,7 @@ public class ThreadActivity extends SherlockListActivity implements
 		return this.thread_id;
 	}
 
-	public void addSmsInfo(SmsInfo sms) {
+	public void addSmsInfo(MSInfo sms) {
 		mAdapter.add(sms);
 		mAdapter.notifyDataSetChanged();
 	}
@@ -163,33 +164,32 @@ public class ThreadActivity extends SherlockListActivity implements
 			mAdapter = new ThreadActivityAdapter(this, null);
 		}
 
-
-		List<SmsInfo> list = Utility.getSmsAllByThreadId(this, thread_id);
+		List<MSInfo> list = Utility.getSmsAllByThreadId(this, thread_id);
 		if (list.size() <= 0) {
 			finish();
 			return;
 		}
 		mPhone = Utility.getCleanPhone(list.get(0).address);
-		mAdapter.setContactName(Utility.getCantactByPhone(this,
-				mPhone).displayName);
+		mAdapter.setContactName(Utility.getCantactByPhone(this, mPhone).displayName);
 
 		mAdapter.addAll(list);
 		mAdapter.notifyDataSetChanged();
-		
-		SharedPreferences preference = getSharedPreferences(
-				SmsApplication.PREFER, 0);
-		int current_count = preference.getInt(
-				SmsApplication.NOTIFICATION_COUNT, 0);
 
-		Editor editor = preference.edit();
-		editor.putInt(SmsApplication.NOTIFICATION_COUNT, 0);
-		editor.commit();
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		SmsApplication.get().setCurrentActivity(null);
+		SharedPreferences preference = getSharedPreferences(
+				SmsApplication.PREFER, 0);
+		int current_count = preference.getInt(
+				SmsApplication.NOTIFICATION_COUNT, 0);
+		current_count -= mAdapter.getReadCount();
+		Editor editor = preference.edit();
+		editor.putInt(SmsApplication.NOTIFICATION_COUNT, current_count < 0 ? 0
+				: current_count);
+		editor.commit();
 	}
 
 	@Override

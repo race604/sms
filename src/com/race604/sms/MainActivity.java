@@ -7,7 +7,8 @@ import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.race604.sms.model.SmsThread;
+import com.race604.sms.model.MsConversation;
+import com.race604.sms.model.MSThread;
 import com.race604.sms.model.Utility;
 
 import android.content.Intent;
@@ -40,9 +41,9 @@ public class MainActivity extends SherlockListActivity implements OnGesturePerfo
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        
         mThreadLv = getListView();
-        List<SmsThread> smsList = Utility.getThreadALL(this);
+        List<MSThread> smsList = Utility.getThreadALL(this);
+        Utility.getMmsSmsConversations(this);
         mListAdapter = new MainActivityAdapter(this, smsList);
         setListAdapter(mListAdapter);   
         
@@ -56,6 +57,8 @@ public class MainActivity extends SherlockListActivity implements OnGesturePerfo
 		}
 		
 		mThreadLv.setOnItemClickListener(this);
+		
+		
     }
     
     @Override
@@ -181,7 +184,7 @@ public class MainActivity extends SherlockListActivity implements OnGesturePerfo
 
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View view, int position, long arg3) {
-		SmsThread thread = mListAdapter.getItem(position);
+		MSThread thread = mListAdapter.getItem(position);
 		Intent intent;
 		
 		intent = new Intent(MainActivity.this, ThreadActivity.class);

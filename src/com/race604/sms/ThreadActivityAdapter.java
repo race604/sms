@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.race604.sms.model.SmsInfo;
-
 import android.app.Activity;
 import android.text.format.Time;
 import android.view.LayoutInflater;
@@ -14,18 +12,23 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class ThreadActivityAdapter  extends ArrayAdapter<SmsInfo>{
+import com.race604.sms.model.MSInfo;
+import com.race604.sms.model.Utility;
+
+public class ThreadActivityAdapter  extends ArrayAdapter<MSInfo>{
 
 
-	private List<SmsInfo> mList;
+	private List<MSInfo> mList;
 	private Activity mContext;
 	private LayoutInflater mInflater;
 	private String mName;
 	
-	public ThreadActivityAdapter(Activity context, List<SmsInfo> smsList) {
+	private int mReadCount = 0;
+	
+	public ThreadActivityAdapter(Activity context, List<MSInfo> smsList) {
 		super(context, R.layout.thread_item, smsList);
 		if (smsList == null) {
-			mList = new ArrayList<SmsInfo>();
+			mList = new ArrayList<MSInfo>();
 		} else {
 			mList = smsList;
 		}
@@ -42,12 +45,12 @@ public class ThreadActivityAdapter  extends ArrayAdapter<SmsInfo>{
 	}
 	
 	@Override
-	public void add(SmsInfo object) {
+	public void add(MSInfo object) {
 		mList.add(object);
 	}
 
 	@Override
-	public void addAll(Collection<? extends SmsInfo> collection) {
+	public void addAll(Collection<? extends MSInfo> collection) {
 		mList.addAll(collection);
 	}
 
@@ -63,7 +66,7 @@ public class ThreadActivityAdapter  extends ArrayAdapter<SmsInfo>{
 	}
 
 	@Override
-	public SmsInfo getItem(int position) {
+	public MSInfo getItem(int position) {
 		return mList.get(position);
 	}
 
@@ -85,7 +88,7 @@ public class ThreadActivityAdapter  extends ArrayAdapter<SmsInfo>{
 		}
 		
 		ViewHolder holder = (ViewHolder) rawView.getTag();
-		SmsInfo sms = mList.get(position);
+		MSInfo sms = mList.get(position);
 		if (sms.type == 1)  { // 接收到的短信
 			holder.name.setText(mName);
 		} else { // 自己发送的短信
@@ -96,7 +99,17 @@ public class ThreadActivityAdapter  extends ArrayAdapter<SmsInfo>{
 		holder.time.setText(time.format("%Y-%m-%d %H:%M"));
 		holder.sms.setText(sms.body);
 		
+		if (sms.read == 0) {
+			sms.read = 1;
+			mReadCount++;
+			Utility.setSmsAsRead(mContext, sms.id);
+		}
+		
 		return rawView;
+	}
+	
+	public int getReadCount() {
+		return mReadCount;
 	}
 	
 	private static class ViewHolder {
