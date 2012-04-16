@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.telephony.SmsMessage;
+import android.util.Log;
 
 public class Utility {
 
@@ -130,6 +131,31 @@ public class Utility {
 		return list;
 	}
 	
+	public static List<MSThread> getMmsSmsThread(Context context) {
+		List<MSThread> list = new ArrayList<MSThread>();
+		
+		ContentResolver contentResolver = context.getContentResolver();
+		final String[] projection = new String[] { "*" };
+		Uri uri = Uri.parse(MSInfo.MMS_URI_ALL);
+		Cursor cursor = contentResolver.query(uri, projection, null, null, null);
+		String[] cols = cursor.getColumnNames();
+		Log.d("mms", cols.toString());
+		int idCol = cursor.getColumnIndex("_id");
+		int dateCol = cursor.getColumnIndex("thread_id");
+		int tidCol = cursor.getColumnIndex("date");
+		int readCol = cursor.getColumnIndex("read");
+		int addressCol = cursor.getColumnIndex("msg_box");
+		
+		if(cursor.moveToFirst()) {
+			do {
+				MSThread conv = new MSThread();
+
+			}while(cursor.moveToNext());
+		}
+		
+		return list;
+	}
+	
 	public static List<MSInfo> getSmsAllByThreadId(Context context,
 			long thread_id) {
 		return getMSInfo(context, Uri.parse(MSInfo.SMS_URI_ALL),
@@ -241,7 +267,7 @@ public class Utility {
 
 		ContentResolver contentResolver = context.getContentResolver();
 		final String[] projection = new String[] { "*" };
-		Uri uri = Uri.parse(MsConversation.MMS_SMS_URI);
+		Uri uri = Uri.parse(MsConversation.MMS_THREAD_URI);
 		Cursor cursor = contentResolver.query(uri, projection, null, null, null);
 
 		int idCol = cursor.getColumnIndex("_id");

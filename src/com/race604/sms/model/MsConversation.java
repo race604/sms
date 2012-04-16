@@ -1,9 +1,9 @@
 package com.race604.sms.model;
 
 public class MsConversation {
-	public static final String MMS_SMS_URI = "content://mms-sms/conversations/";
-	public static final String MMS_URI = "content://mms/threads/";
-	public static final String SMS_URI = "content://sms/threads/";
+	public static final String MMS_SMS_THREAD_URI = "content://mms-sms/conversations/";
+	public static final String MMS_THREAD_URI = "content://mms/threads/";
+	public static final String SMS_THREAD_URI = "content://sms/threads/";
 	
 	// [tid, normalized_date, body, person, sub, subject, retr_st, type, date, 
 	//  ct_cls, sub_cs, _id, read, ct_l, tr_id, st, msg_box, thread_id, 

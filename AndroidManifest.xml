@@ -74,18 +74,6 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <!--
-            <intent-filter android:priority="2147483647">
-                <action android:name="android.provider.Telephony.WAP_PUSH_RECEIVED" />
-                <data android:mimeType="application/vnd.wap.mms-message" />
-            </intent-filter>
-            <intent-filter android:priority="2147483647">
-                <action android:name="com.android.mms.transaction.MESSAGE_SENT" />
-            </intent-filter>
-            <intent-filter android:priority="2147483647">
-                <action android:name="android.intent.action.CONTENT_CHANGED" />
-            </intent-filter>
-            -->
         </receiver>
         <receiver android:name=".SmsReceiver" >
             <intent-filter android:priority="10000" >
@@ -95,8 +83,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".SmsSendStatusReceiver"
-            android:permission="android.permission.BROADCAST_WAP_PUSH" >
+            android:name=".SmsSendStatusReceiver" >
             <intent-filter>
                 <action android:name="com.race604.sms.SENT" />
                 <action android:name="com.race604.sms.DELIVERED" />

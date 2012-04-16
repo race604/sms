@@ -11,6 +11,7 @@ import com.race604.sms.model.MsConversation;
 import com.race604.sms.model.MSThread;
 import com.race604.sms.model.Utility;
 
+import android.content.Context;
 import android.content.Intent;
 import android.gesture.Gesture;
 import android.gesture.GestureLibraries;
@@ -43,22 +44,22 @@ public class MainActivity extends SherlockListActivity implements OnGesturePerfo
         setContentView(R.layout.main);
         mThreadLv = getListView();
         List<MSThread> smsList = Utility.getThreadALL(this);
-        Utility.getMmsSmsConversations(this);
+
+        Utility.getMmsSmsThread(this);
+        
         mListAdapter = new MainActivityAdapter(this, smsList);
-        setListAdapter(mListAdapter);   
+        setListAdapter(mListAdapter);
+        
         
         GestureOverlayView gestureView = (GestureOverlayView) findViewById(R.id.gestures);
         gestureView.addOnGesturePerformedListener(this);
-        gestureView.setGestureColor(Color.TRANSPARENT);
-        gestureView.setUncertainGestureColor(Color.TRANSPARENT);
         mGestureLib = GestureLibraries.fromRawResource(this, R.raw.gestures);
 		if (!mGestureLib.load()) {
 			finish();
 		}
 		
 		mThreadLv.setOnItemClickListener(this);
-		
-		
+				
     }
     
     @Override
