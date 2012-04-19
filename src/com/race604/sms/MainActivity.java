@@ -43,9 +43,9 @@ public class MainActivity extends SherlockListActivity implements OnGesturePerfo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         mThreadLv = getListView();
-        List<MSThread> smsList = Utility.getThreadALL(this);
+        //List<MSThread> smsList = Utility.getThreadALL(this);
 
-        Utility.getMmsSmsThread(this);
+        List<MSThread> smsList = Utility.getMmsSmsThread(this);
         
         mListAdapter = new MainActivityAdapter(this, smsList);
         setListAdapter(mListAdapter);

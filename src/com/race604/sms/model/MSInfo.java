@@ -23,11 +23,16 @@ public class MSInfo {
 	public int read; // 是否阅读0未读，1已读
 	public int status; // 短信状态-1 接收，0 complete,64 pending,128 failed
 	public int type; // 短信类型1是接收到的，2是已发出
+	public MSType msType; // 短信 or 彩信
 	// private String service_center; // 短信服务中心号码编号，如+8613800755500
 
 	public static int STATUS_NONE = -1;
 	public static int STATUS_COMPLETED = 0;
 	public static int STATUS_PENDING = 64;
 	public static int STATUS_FAILED = 128;
+	
+	public static enum MSType {
+		MMS, SMS
+	}
 
 }
