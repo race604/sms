@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import android.app.Activity;
+import android.text.SpannableStringBuilder;
 import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -117,5 +118,5 @@ public class ThreadActivityAdapter  extends ArrayAdapter<MSInfo>{
 		public TextView time;
 		public TextView sms;
 	}
-
+	
 }

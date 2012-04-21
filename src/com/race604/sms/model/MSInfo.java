@@ -12,6 +12,8 @@ public class MSInfo {
 
 	// 所有的短信
 	public static final String MMS_URI_ALL = "content://mms/";
+	
+	public static final String MMS_SMS_CONVERSATIONS = "content://mms-sms/conversations/";
 
 	public long id; // 短信id
 	public long thread_id; // 对话的序号，与同一个手机号互发的短信，其序号是相同的

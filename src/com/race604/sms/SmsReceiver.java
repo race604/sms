@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -57,21 +58,30 @@ public class SmsReceiver extends BroadcastReceiver {
 			Notification notification = new Notification(icon, tickerText, when);
 
 			CharSequence contentTitle = from;
-			Intent notificationIntent = new Intent(appContext,
-					ThreadActivity.class);
-			notificationIntent.putExtra("id", thread_id);
+//			Intent notificationIntent = new Intent[2];
+//			notificationIntent[0] = new Intent(appContext,
+//					com.race604.sms.MainActivity.class);
+//			notificationIntent[0].setAction(Intent.ACTION_MAIN);
+//			notificationIntent[0].addCategory(Intent.CATEGORY_LAUNCHER);
+//			notificationIntent[0].addCategory(Intent.CATEGORY_LAUNCHER);
+//			notificationIntent[0].addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//			notificationIntent[0].addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 			
-			PendingIntent contentIntent = PendingIntent.getActivity(appContext,
-					0, notificationIntent, PendingIntent.FLAG_ONE_SHOT);
+			Intent notificationIntent = new Intent(appContext, ThreadActivity.class);
+			notificationIntent.putExtra("id", thread_id);
+
+			PendingIntent contentIntent = PendingIntent.getActivity(
+					appContext, 0, notificationIntent,
+					PendingIntent.FLAG_ONE_SHOT);
 
 			notification.setLatestEventInfo(context, contentTitle, sms.body,
 					contentIntent);
 
 			// LED light
 			notification.defaults |= Notification.DEFAULT_ALL;
-			notification.ledARGB = 0xffffffff;
-			notification.ledOnMS = 300;
-			notification.ledOffMS = 400;
+			notification.ledARGB = 0xff00ff00;
+			notification.ledOnMS = 200;
+			notification.ledOffMS = 250;
 			notification.flags |= Notification.FLAG_SHOW_LIGHTS;
 			notification.flags |= Notification.FLAG_AUTO_CANCEL;
 

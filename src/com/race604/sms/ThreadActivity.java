@@ -39,8 +39,15 @@ public class ThreadActivity extends SherlockListActivity implements
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.thread_activity);
-
-		thread_id = getIntent().getExtras().getLong("id", -1);
+		
+		Intent intent = getIntent();
+		Uri uri = intent.getData();
+		if (uri != null && uri.getAuthority().equals("mms-sms")) {
+			thread_id =  Long.valueOf(uri.getLastPathSegment());
+		} else {
+			thread_id = intent.getExtras().getLong("id", -1);
+		}
+		
 		if (thread_id == -1) {
 			finish();
 			return;
@@ -80,9 +87,11 @@ public class ThreadActivity extends SherlockListActivity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		switch (id) {
-		case android.R.id.home: // home button
+		case android.R.id.home:{ // home button
+			restartMainActivity();
 			finish();
 			break;
+		}
 		case R.string.search:
 			break;
 		case R.string.call: {
@@ -93,6 +102,16 @@ public class ThreadActivity extends SherlockListActivity implements
 		}
 		}
 		return true;
+	}
+	
+	private void restartMainActivity() {
+		Intent intent = new Intent(SmsApplication.get().getApplicationContext(), MainActivity.class);
+		intent.setAction(Intent.ACTION_MAIN);
+		intent.addCategory(Intent.CATEGORY_LAUNCHER);
+		intent.addCategory(Intent.CATEGORY_LAUNCHER);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		startActivity(intent);
 	}
 
 	@Override
@@ -164,7 +183,7 @@ public class ThreadActivity extends SherlockListActivity implements
 			mAdapter = new ThreadActivityAdapter(this, null);
 		}
 
-		List<MSInfo> list = Utility.getSmsAllByThreadId(this, thread_id);
+		List<MSInfo> list = Utility.getMmsSmsByThreadId(this, thread_id);
 		if (list.size() <= 0) {
 			finish();
 			return;
@@ -198,4 +217,10 @@ public class ThreadActivity extends SherlockListActivity implements
 		SmsApplication.get().setCurrentActivity(ThreadActivity.this);
 	}
 
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		restartMainActivity();
+	}
+	
 }

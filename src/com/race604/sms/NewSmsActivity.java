@@ -1,6 +1,7 @@
 package com.race604.sms;
 
 import java.util.List;
+import java.util.Set;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -24,21 +25,36 @@ public class NewSmsActivity extends SherlockActivity implements OnClickListener 
 	private Button mSelectBtn;
 	private EditText mAddressEt;
 	private EditText mContentEt;
-	
+	private String mScheme;
+	private String mNumber;
+	private String mMessage;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.new_sms_activity);
-		
+
+		Intent intent = getIntent();
+		Uri uri = intent.getData();
+		if (uri != null) {
+			mScheme = uri.getScheme();
+			mNumber = uri.getSchemeSpecificPart();
+		}
+
 		mSendBtn = (Button) findViewById(R.id.bt_send);
 		mSelectBtn = (Button) findViewById(R.id.bt_select);
 		mSendBtn.setOnClickListener(this);
 		mSelectBtn.setOnClickListener(this);
-		
+
 		mAddressEt = (EditText) findViewById(R.id.et_address);
 		mContentEt = (EditText) findViewById(R.id.et_content);
-		
+
+		if (mNumber != null) {
+			mAddressEt.setText(mNumber);
+		}
+
 		getSupportActionBar().setTitle(R.string.newsms);
+
 	}
 
 	@Override
@@ -50,7 +66,7 @@ public class NewSmsActivity extends SherlockActivity implements OnClickListener 
 						MenuItem.SHOW_AS_ACTION_IF_ROOM
 								| MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		
+
 		return true;
 	}
 
@@ -76,11 +92,11 @@ public class NewSmsActivity extends SherlockActivity implements OnClickListener 
 		case R.id.bt_send: {
 			String phone = mAddressEt.getText().toString();
 			String message = mContentEt.getText().toString();
-			if(phone == null || phone.length() <= 0
-					|| message == null || message.length() <= 0 ) {
+			if (phone == null || phone.length() <= 0 || message == null
+					|| message.length() <= 0) {
 				return;
 			}
-			
+
 			SmsManager smsManager = SmsManager.getDefault();
 			// 如果短信没有超过限制长度，则返回一个长度的List。
 			List<String> texts = smsManager.divideMessage(message);
@@ -94,27 +110,29 @@ public class NewSmsActivity extends SherlockActivity implements OnClickListener 
 
 				Bundle bundle = new Bundle();
 				bundle.putParcelable(SmsSendStatusReceiver.SMS_URI, uri);
-				
+
 				Intent intent = new Intent(SmsSendStatusReceiver.SENT);
 				intent.putExtras(bundle);
-				sentPI = PendingIntent.getBroadcast(this, 0,
-						intent, PendingIntent.FLAG_UPDATE_CURRENT);
-				
+				sentPI = PendingIntent.getBroadcast(this, 0, intent,
+						PendingIntent.FLAG_UPDATE_CURRENT);
+
 				intent = new Intent(SmsSendStatusReceiver.DELIVERED);
 				intent.putExtras(bundle);
-				deliveredPI = PendingIntent.getBroadcast(this,
-						0, intent, PendingIntent.FLAG_ONE_SHOT);
+				deliveredPI = PendingIntent.getBroadcast(this, 0, intent,
+						PendingIntent.FLAG_ONE_SHOT);
 
 				smsManager.sendTextMessage(phone, null, text, sentPI,
 						deliveredPI);
 			}
 			// 隐藏键盘
-//			mContentEt.setText("");
-//			mContentEt.clearFocus();
-//			InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//			imm.hideSoftInputFromWindow(mContentEt.getWindowToken(), 0);
-			
-			Intent intent = new Intent(NewSmsActivity.this, ThreadActivity.class);
+			// mContentEt.setText("");
+			// mContentEt.clearFocus();
+			// InputMethodManager imm = (InputMethodManager)
+			// getSystemService(Context.INPUT_METHOD_SERVICE);
+			// imm.hideSoftInputFromWindow(mContentEt.getWindowToken(), 0);
+
+			Intent intent = new Intent(NewSmsActivity.this,
+					ThreadActivity.class);
 			MSInfo sms = Utility.getAMSInfo(this, uri);
 			intent.putExtra("id", sms.thread_id);
 			startActivity(intent);
@@ -124,7 +142,7 @@ public class NewSmsActivity extends SherlockActivity implements OnClickListener 
 		default:
 			break;
 		}
-		
+
 	}
 
 }

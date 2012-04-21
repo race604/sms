@@ -3,6 +3,8 @@ package com.race604.sms.model;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import android.content.ContentResolver;
@@ -12,8 +14,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 import android.telephony.SmsMessage;
+import android.text.SpannableStringBuilder;
 
 public class Utility {
+	
+	public static final int MIN_NUMBER_LEN = 5;
 
 	public static final String DESC_SORT_ORDER = "date DESC";
 	public static final String ASC_SORT_ORDER = "date ASC";
@@ -24,10 +29,10 @@ public class Utility {
 			"address", "person", "date", "protocol", "read", "status", "type",
 			"body" };
 
-	public static List<MSInfo> getMSInfo(Context context, Uri uri,
+	public static List<MSInfo> getSms(Context context, Uri uri,
 			String selection, String[] selectionArgs, String sortOrder,
 			int maxCount) {
-		List<MSInfo> smsList = new ArrayList<MSInfo>();
+		List<MSInfo> smsList = new LinkedList<MSInfo>();
 
 		Cursor cusor = context.getContentResolver().query(uri, SMS_PROJECTION,
 				selection, selectionArgs, sortOrder);
@@ -68,13 +73,13 @@ public class Utility {
 		return smsList;
 	}
 
-	public static List<MSInfo> getMSInfo(Context context, Uri uri,
+	public static List<MSInfo> getSms(Context context, Uri uri,
 			String selection, String[] selectionArgs, String sortOrder) {
-		return getMSInfo(context, uri, selection, selectionArgs, sortOrder, 0);
+		return getSms(context, uri, selection, selectionArgs, sortOrder, 0);
 	}
 
 	public static MSInfo getAMSInfo(Context context, Uri uri) {
-		List<MSInfo> list = getMSInfo(context, uri, null, null, null, 1);
+		List<MSInfo> list = getSms(context, uri, null, null, null, 1);
 		if (list.size() > 0) {
 			return list.get(0);
 		}
@@ -83,22 +88,22 @@ public class Utility {
 	}
 
 	public static List<MSInfo> getSmsAll(Context context) {
-		return getMSInfo(context, Uri.parse(MSInfo.SMS_URI_ALL), null, null,
+		return getSms(context, Uri.parse(MSInfo.SMS_URI_ALL), null, null,
 				DEFAULT_SORT_ORDER);
 	}
 
 	public static List<MSInfo> getSmsInbox(Context context) {
-		return getMSInfo(context, Uri.parse(MSInfo.SMS_URI_INBOX), null, null,
+		return getSms(context, Uri.parse(MSInfo.SMS_URI_INBOX), null, null,
 				DEFAULT_SORT_ORDER);
 	}
 
 	public static List<MSInfo> getSmsSend(Context context) {
-		return getMSInfo(context, Uri.parse(MSInfo.SMS_URI_SEND), null, null,
+		return getSms(context, Uri.parse(MSInfo.SMS_URI_SEND), null, null,
 				DEFAULT_SORT_ORDER);
 	}
 
 	public static List<MSInfo> getSmsDraft(Context context) {
-		return getMSInfo(context, Uri.parse(MSInfo.SMS_URI_DRAFT), null, null,
+		return getSms(context, Uri.parse(MSInfo.SMS_URI_DRAFT), null, null,
 				DEFAULT_SORT_ORDER);
 	}
 
@@ -136,10 +141,10 @@ public class Utility {
 
 					MSInfo msInfo = new MSInfo();
 					msInfo.id = cusor.getInt(idCol);
-					msInfo.thread_id = cusor.getInt(thread_idCol);
+					msInfo.thread_id = thread_id;
 					msInfo.address = cusor.getString(addressCol);
 					msInfo.date = cusor.getLong(dateCol);
-					msInfo.read = cusor.getInt(readCol);
+					msInfo.read = read;
 					msInfo.status = cusor.getInt(statusCol);
 					msInfo.type = cusor.getInt(typeCol);
 					msInfo.body = cusor.getString(bodyCol);
@@ -163,30 +168,42 @@ public class Utility {
 		return list;
 	}
 
-	public static List<MSInfo> getMmsAll(Context context) {
-		List<MSInfo> list = new ArrayList<MSInfo>();
+	public static List<MSInfo> getMms(Context context, Uri uri,
+			String selection, String[] selectionArgs, String sortOrder) {
+		return getMms(context, uri, selection, selectionArgs, sortOrder, 0);
+	}
+
+	public static List<MSInfo> getMms(Context context, Uri uri,
+			String selection, String[] selectionArgs, String sortOrder,
+			int maxCount) {
+		List<MSInfo> list = new LinkedList<MSInfo>();
 		ContentResolver contentResolver = context.getContentResolver();
 		final String[] projection = new String[] { "_id", "thread_id", "date",
-				"read", "sub" };
-		Uri uri = Uri.parse(MSInfo.MMS_URI_ALL);
-		Cursor cursor = contentResolver.query(uri, projection, null, null,
-				ASC_SORT_ORDER);
+				"read", "sub", "msg_box"};
+		Cursor cursor = contentResolver.query(uri, projection, selection,
+				selectionArgs, sortOrder);
 		int idCol = cursor.getColumnIndex("_id");
 		int tidCol = cursor.getColumnIndex("thread_id");
 		int dateCol = cursor.getColumnIndex("date");
 		int readCol = cursor.getColumnIndex("read");
 		int subjectCol = cursor.getColumnIndex("sub");
+		int typeCol = cursor.getColumnIndex("msg_box");
 
+		int count = 0;
 		if (cursor.moveToFirst()) {
 			do {
+				if (maxCount != 0 && count >= maxCount) {
+					break;
+				}
 				MSInfo info = new MSInfo();
 				info.id = cursor.getLong(idCol);
 				info.thread_id = cursor.getLong(tidCol);
-				info.date = cursor.getLong(dateCol);
+				info.date = cursor.getLong(dateCol) * 1000;
 				info.read = cursor.getInt(readCol);
 				info.address = getMmsAddress(context, info.id);
 				info.body = cursor.getString(subjectCol);
-				info.msType = MSInfo.MSType.SMS;
+				info.type = cursor.getInt(typeCol);
+				info.msType = MSInfo.MSType.MMS;
 				try {
 					info.body = new String(info.body.getBytes("ISO8859_1"),
 							"utf-8");
@@ -204,15 +221,18 @@ public class Utility {
 
 	public static List<MSThread> getMmsThread(Context context) {
 
-		List<MSThread> list = new ArrayList<MSThread>();
+		List<MSThread> list = new LinkedList<MSThread>();
 		HashMap<Long, Integer> threadIds = new HashMap<Long, Integer>();
 
 		ContentResolver contentResolver = context.getContentResolver();
 		final String[] projection = new String[] { "_id", "thread_id", "date",
 				"read", "sub" };
+		
+		
 		Uri uri = Uri.parse(MSInfo.MMS_URI_ALL);
 		Cursor cursor = contentResolver.query(uri, projection, null, null,
 				DESC_SORT_ORDER);
+		
 		int idCol = cursor.getColumnIndex("_id");
 		int tidCol = cursor.getColumnIndex("thread_id");
 		int dateCol = cursor.getColumnIndex("date");
@@ -234,9 +254,17 @@ public class Utility {
 					MSInfo info = new MSInfo();
 					info.id = cursor.getLong(idCol);
 					info.thread_id = thread_id;
-					info.date = cursor.getLong(dateCol);
+					info.date = cursor.getLong(dateCol) * 1000;
 					info.read = read;
 					info.body = cursor.getString(subjectCol);
+
+					try {
+						info.body = new String(info.body.getBytes("ISO8859_1"),
+								"utf-8");
+					} catch (UnsupportedEncodingException e1) {
+						e1.printStackTrace();
+					}
+
 					info.msType = MSInfo.MSType.MMS;
 					threadIds.put(thread_id, list.size());
 					thread = new MSThread();
@@ -280,42 +308,121 @@ public class Utility {
 	}
 
 	public static List<MSThread> getMmsSmsThread(Context context) {
-		List<MSThread> list = new ArrayList<MSThread>();
+		LinkedList<MSThread> list = new LinkedList<MSThread>();
 
 		List<MSThread> mmsThreads = getMmsThread(context);
 		List<MSThread> smsThreads = getSmsThread(context);
 
 		HashMap<Long, Integer> threadIds = new HashMap<Long, Integer>();
-		Integer index;
-		MSThread thread;
-		
+
 		int sPos = 0;
 		int mPos = 0;
-		
+
 		int sLen = smsThreads.size();
 		int mLen = mmsThreads.size();
-		
+
 		while (sPos < sLen && mPos < mLen) {
 			MSThread sms = smsThreads.get(sPos);
 			MSThread mms = mmsThreads.get(mPos);
+			MSThread toAdd;
 			if (sms.latest.date >= mms.latest.date) {
-				// TODO ¹é²¢Á½¸öThread List
+				toAdd = sms;
+				sPos++;
+			} else {
+				toAdd = mms;
+				mPos++;
+			}
+
+			Integer idx = threadIds.get(toAdd.latest.thread_id);
+			if (idx == null) {
+				threadIds.put(toAdd.latest.thread_id, list.size());
+				if (toAdd.latest.msType == MSInfo.MSType.MMS) {
+					toAdd.latest.address = getMmsAddress(context,
+							toAdd.latest.id);
+				}
+				list.add(toAdd);
+			} else {
+				list.get(idx).count += toAdd.count;
 			}
 		}
+
+		while (sPos < sLen) {
+			MSThread toAdd = smsThreads.get(sPos);
+			Integer idx = threadIds.get(toAdd.latest.thread_id);
+			if (idx == null) {
+				threadIds.put(toAdd.latest.thread_id, list.size());
+				list.add(toAdd);
+			} else {
+				list.get(idx).count += toAdd.count;
+			}
+			sPos++;
+		}
+
+		while (mPos < mLen) {
+			MSThread toAdd = mmsThreads.get(mPos);
+			Integer idx = threadIds.get(toAdd.latest.thread_id);
+			if (idx == null) {
+				threadIds.put(toAdd.latest.thread_id, list.size());
+				toAdd.latest.address = getMmsAddress(context, toAdd.latest.id);
+				list.add(toAdd);
+			} else {
+				list.get(idx).count += toAdd.count;
+			}
+			mPos++;
+		}
+
+		return list;
+	}
+
+	public static List<MSInfo> getMmsSmsByThreadId(Context context,
+			long thread_id) {
+		List<MSInfo> list = new LinkedList<MSInfo>();
+
+		List<MSInfo> smsList = getSms(context, Uri.parse(MSInfo.SMS_URI_ALL),
+				"thread_id = ?", new String[] { String.valueOf(thread_id) },
+				Utility.ASC_SORT_ORDER);
+
+		List<MSInfo> mmsList = getMms(context, Uri.parse(MSInfo.MMS_URI_ALL),
+				"thread_id = ?", new String[] { String.valueOf(thread_id) },
+				Utility.ASC_SORT_ORDER);
+
+		Iterator<MSInfo> smsIterator = smsList.iterator();
+		Iterator<MSInfo> mmsIterator = mmsList.iterator();
+
+		MSInfo sms;
+		MSInfo mms;
+		while (smsIterator.hasNext() && mmsIterator.hasNext()) {
+			sms = smsIterator.next();
+			mms = mmsIterator.next();
+			if (sms.date > mms.date) {
+				list.add(sms);
+			} else {
+				list.add(mms);
+			}
+		}
+
+		while (smsIterator.hasNext()) {
+			sms = smsIterator.next();
+			list.add(sms);
+		}
 		
-		
-		return smsThreads;
+		while (mmsIterator.hasNext()) {
+			mms = mmsIterator.next();
+			list.add(mms);
+		}
+
+		return list;
 	}
 
 	public static List<MSInfo> getSmsAllByThreadId(Context context,
 			long thread_id) {
-		return getMSInfo(context, Uri.parse(MSInfo.SMS_URI_ALL),
-				"thread_id = ?", new String[] { String.valueOf(thread_id) },
+		return getSms(context, Uri.parse(MSInfo.SMS_URI_ALL), "thread_id = ?",
+				new String[] { String.valueOf(thread_id) },
 				Utility.ASC_SORT_ORDER);
 	}
 
 	public static long getThreadIdByPhone(Context context, String phone) {
-		List<MSInfo> list = getMSInfo(context, Uri.parse(MSInfo.SMS_URI_ALL),
+		List<MSInfo> list = getSms(context, Uri.parse(MSInfo.SMS_URI_ALL),
 				"address = ? ", new String[] { phone }, Utility.DESC_SORT_ORDER);
 		if (list.size() <= 0) {
 			return -1;
@@ -485,5 +592,36 @@ public class Utility {
 		}
 		return smsList;
 	}
+	
+	public static boolean isNumber(char a) {
+		return (a >= '0' && a <= '9');
+	}
+	
+	public static SpannableStringBuilder generateSpannable(String str) {
+		if (str == null ) {
+			return null;
+		}
+		
+		SpannableStringBuilder spanBuilder = new SpannableStringBuilder(str);
+		int cur = 0;
+		int start = -1;
+		int numberLen = 0;
+		int urlLen = 0;
+		for (; cur < str.length(); cur++) {
+			if (isNumber(str.charAt(cur)) && urlLen == 0) {
+				if (numberLen == 0) {
+					start = cur;
+				}
+				numberLen++;
+			} else {
+				if (numberLen >= MIN_NUMBER_LEN) {
+					//spanBuilder.setSpan(what, start, end, flags)
+				}
+			}
+		}
+		
+		return null;
+	}
+ 
 
 }

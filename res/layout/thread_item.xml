@@ -26,6 +26,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:textColor="#0099CC"
-        android:layout_marginLeft="10dp" />
+        android:layout_marginLeft="10dp"
+        android:autoLink="all"
+        android:textColorLink="#0039B3" />
 
 </LinearLayout>
