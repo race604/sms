@@ -25,12 +25,6 @@
  */
 package com.race604.fetion.data;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-
-import net.solosky.maplefetion.util.AccountValidator;
-import net.solosky.maplefetion.util.ConvertHelper;
-import net.solosky.maplefetion.util.DigestHelper;
 
 /**
  *

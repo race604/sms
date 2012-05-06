@@ -25,8 +25,7 @@
  */
 package com.race604.fetion.data;
 
-import java.awt.image.BufferedImage;
-
+import android.graphics.Bitmap;
 
 /**
  *  飞信好友
@@ -92,7 +91,7 @@ public class Buddy extends Person
 	/**
 	 * 头像
 	 */
-	protected BufferedImage portrait;
+	protected Bitmap portrait;
 
 	/**
      * @return the nickName
@@ -331,7 +330,7 @@ public class Buddy extends Person
 	/**
      * @return the portrait
      */
-    public BufferedImage getPortrait()
+    public Bitmap getPortrait()
     {
     	return portrait;
     }
@@ -339,7 +338,7 @@ public class Buddy extends Person
 	/**
      * @param portrait the portrait to set
      */
-    public void setPortrait(BufferedImage portrait)
+    public void setPortrait(Bitmap portrait)
     {
     	this.portrait = portrait;
     }

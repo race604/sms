@@ -33,12 +33,18 @@ import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
+import org.jdom.JDOMException;
 
-import com.race604.fetion.data.LocaleSetting;
+import android.util.Log;
+
+import com.race604.fetion.data.Credential;
+import com.race604.fetion.data.FetionConfig;
+import com.race604.fetion.data.FetionStore;
 import com.race604.fetion.data.LoginState;
 import com.race604.fetion.data.User;
 import com.race604.fetion.data.VerifyImage;
+import com.race604.fetion.data.XMLHelper;
 
 /**
  *
@@ -48,18 +54,9 @@ import com.race604.fetion.data.VerifyImage;
  */
 public class SSISignV4 implements SSISign
 {
-	private LocaleSetting localeSetting;
+	public static String TAG = "SSISignV4";
 	private FetionContext fetionContext;
-
-	/* (non-Javadoc)
-     * @see net.solosky.maplefetion.client.SSISign#setLocaleSetting(net.solosky.maplefetion.util.LocaleSetting)
-     */
-    @Override
-    public void setLocaleSetting(LocaleSetting localeSetting)
-    {
-    	this.localeSetting = localeSetting;
-    }
-
+	
 	/* (non-Javadoc)
      * @see net.solosky.maplefetion.client.SSISign#setFetionContext(net.solosky.maplefetion.FetionContext)
      */
@@ -68,7 +65,7 @@ public class SSISignV4 implements SSISign
     {
     	this.fetionContext = context;
     }
-
+	
 	/* (non-Javadoc)
      * @see net.solosky.maplefetion.client.SSISign#signIn(net.solosky.maplefetion.bean.User)
      */
@@ -90,12 +87,12 @@ public class SSISignV4 implements SSISign
 	        URL doUrl = new URL(url);
 	        HttpsURLConnection conn = (HttpsURLConnection) doUrl.openConnection();
 	        int status = conn.getResponseCode();
-//	        logger.debug("SSISignV4:status="+status);
+	        Log.d(TAG, "status="+status);
 	        
 	        switch(status){
 	        
 	        	case 401:
-//	            	logger.debug("Invalid password...");
+	        		Log.d(TAG, "Invalid password...");
 	            	state = LoginState.SSI_AUTH_FAIL;
 	            	break;
 	            	
@@ -108,7 +105,7 @@ public class SSISignV4 implements SSISign
 	        		
 	            
 	            case 420:
-//	            	logger.debug("SSISignV4: invalid verify code.");
+	            	Log.d(TAG, "SSISignV4: invalid verify code.");
 	            	Element e1 = XMLHelper.build(conn.getErrorStream());
 	        		Element vn1 = XMLHelper.find(e1, "/results/verification");
 	        		this.processVerifyAction(vn1.getAttributeValue("algorithm"), vn1.getAttributeValue("type"),
@@ -117,22 +114,22 @@ public class SSISignV4 implements SSISign
 	            	break;
 	            	
 	            case 433:
-//	            	logger.debug("SSISignV4: User account suspend.");
+	            	Log.d(TAG, "SSISignV4: User account suspend.");
 	            	state = LoginState.SSI_ACCOUNT_SUSPEND;
 	            	break;
 	            	
 	            case 404:
-//	            	logger.debug("SSISignV4: User not found..");
+	            	Log.d(TAG, "SSISignV4: User not found..");
 	            	state = LoginState.SSI_ACCOUNT_NOT_FOUND;
 	            	break;
 	            	
 	            case 503:
-//	            	logger.debug("SSISignV4: SSIServer overload...");
+	            	Log.d(TAG, "SSISignV4: SSIServer overload...");
 	            	state = LoginState.SSI_CONNECT_FAIL;
 	            	break;
 	            	
 	            case 200:
-//	            	logger.debug("SSISignIn: sign in success.");
+	            	Log.d(TAG, "SSISignIn: sign in success.");
 	            	state = LoginState.SSI_SIGN_IN_SUCCESS;
 	            	
 	            	String h = conn.getHeaderField("Set-Cookie");
@@ -156,29 +153,26 @@ public class SSISignV4 implements SSISign
 	        			store.addCredential(new Credential(c.getAttributeValue("domain"), c.getAttributeValue("c")));
 	        		}
 	        		
-//	        		logger.debug("SSISignV4:ssic="+user.getSsiCredential());
+	        		Log.d(TAG, "SSISignV4:ssic="+user.getSsiCredential());
 	        		
 	        		break;
 	        		
 	        	default:
-//	        		logger.debug("SSISignV4: Unhandled ssi status="+status);
+	        		Log.d(TAG, "SSISignV4: Unhandled ssi status="+status);
 	        		state = LoginState.OTHER_ERROR;
 	        }
         } catch (NumberFormatException e) {
         	state = LoginState.OTHER_ERROR;
-//        	logger.warn("SSI SignV4 failed.", e);
+        	Log.w(TAG, "SSI SignV4 failed.", e);
         } catch (MalformedURLException e) {
         	state = LoginState.OTHER_ERROR;
-//        	logger.warn("SSI SignV4 failed.", e);
-        } catch (ParseException e) {
-        	state = LoginState.OTHER_ERROR;
-//        	logger.warn("SSI SignV4 failed.", e);
+        	Log.w(TAG, "SSI SignV4 failed.", e);
         } catch (IOException e) {
         	state = LoginState.SSI_CONNECT_FAIL;
-//        	logger.warn("SSI SignV4 failed.", e);
+        	Log.w(TAG, "SSI SignV4 failed.", e);
         }catch(Throwable e) {
         	state = LoginState.OTHER_ERROR;
-//        	logger.warn("SSI SignV4 failed.", e);
+        	Log.w(TAG, "SSI SignV4 failed.", e);
         }
         
         return state;
@@ -202,28 +196,30 @@ public class SSISignV4 implements SSISign
     {
     	try {
 	        VerifyImage verifyImage = HttpApplication.fetchVerifyImage(
-	        		this.fetionContext.getFetionUser(), this.fetionContext.getLocaleSetting(), alg, type);
-	        
-	        NotifyEventListener listener = this.fetionContext.getNotifyEventListener();
-	        
-	        if(listener!=null) {
-	        	listener.fireEvent(new ImageVerifyEvent(ImageVerifyEvent.SSI_VERIFY, verifyImage, text, tips));
-	        }else {
-	        	throw new IllegalArgumentException("SSI need verify, but found no notifyEventListener" +
-	        			" to handle verify action, please set NotifyEventListener first.");
-	        }
-        } catch (ParseException e) {
-        	logger.warn("fetch verify image failed.",e );
+	        		this.fetionContext.getFetionUser(), /*this.fetionContext.getLocaleSetting(),*/ alg, type);
+	        // TODO 这里要调用验证图片处理函数，还没有实现
+//	        NotifyEventListener listener = this.fetionContext.getNotifyEventListener();
+//	        
+//	        if(listener!=null) {
+//	        	listener.fireEvent(new ImageVerifyEvent(ImageVerifyEvent.SSI_VERIFY, verifyImage, text, tips));
+//	        }else {
+//	        	throw new IllegalArgumentException("SSI need verify, but found no notifyEventListener" +
+//	        			" to handle verify action, please set NotifyEventListener first.");
+//	        }
         } catch (IOException e) {
-        	logger.warn("fetch verify image failed.",e );
-        }
+        	Log.w(TAG, "fetch verify image failed.",e );
+        } catch (JDOMException e) {
+        	Log.w(TAG, "fetch verify image failed.",e );
+		}
     }
     
     
     private String buildUrl(User user, VerifyImage img)
 	{
 		StringBuffer b = new StringBuffer();
-		String urlV4 = this.fetionContext.getLocaleSetting().getNodeText("/config/servers/ssi-app-sign-in-v2");
+		// TODO 这里用该从本地配置中获取，还没有实现本地设置类
+		// String urlV4 = this.fetionContext.getLocaleSetting().getNodeText("/config/servers/ssi-app-sign-in-v2");
+		String urlV4 = null;
 		if(urlV4==null)	urlV4 = FetionConfig.getString("server.ssi-sign-in-v2");
 		b.append(urlV4);
 		b.append("?");
@@ -244,4 +240,5 @@ public class SSISignV4 implements SSISign
 		}
 		return b.toString();
 	}
+
 }
