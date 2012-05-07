@@ -198,16 +198,16 @@ public class SSISignV4 implements SSISign
     {
     	try {
 	        VerifyImage verifyImage = HttpApplication.fetchVerifyImage(
-	        		this.fetionContext.getFetionUser(), /*this.fetionContext.getLocaleSetting(),*/ alg, type);
-	        // TODO 这里要调用验证图片处理函数，还没有实现
-//	        NotifyEventListener listener = this.fetionContext.getNotifyEventListener();
-//	        
-//	        if(listener!=null) {
-//	        	listener.fireEvent(new ImageVerifyEvent(ImageVerifyEvent.SSI_VERIFY, verifyImage, text, tips));
-//	        }else {
-//	        	throw new IllegalArgumentException("SSI need verify, but found no notifyEventListener" +
-//	        			" to handle verify action, please set NotifyEventListener first.");
-//	        }
+	        		this.fetionContext.getFetionUser(), this.fetionContext.getLocaleSetting(), alg, type);
+	        
+	        NotifyEventListener listener = this.fetionContext.getNotifyEventListener();
+	        
+	        if(listener!=null) {
+	        	listener.fireEvent(new ImageVerifyEvent(ImageVerifyEvent.SSI_VERIFY, verifyImage, text, tips));
+	        }else {
+	        	throw new IllegalArgumentException("SSI need verify, but found no notifyEventListener" +
+	        			" to handle verify action, please set NotifyEventListener first.");
+	        }
         } catch (IOException e) {
         	Log.w(TAG, "fetch verify image failed.",e );
         } catch (JDOMException e) {

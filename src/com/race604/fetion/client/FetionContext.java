@@ -25,6 +25,7 @@
  */
 package com.race604.fetion.client;
 
+import com.race604.fetion.data.FetionException;
 import com.race604.fetion.data.FetionStore;
 import com.race604.fetion.data.LocaleSetting;
 import com.race604.fetion.data.User;
@@ -83,7 +84,7 @@ public interface FetionContext
 	 * 返回通知监听器
 	 * @return the notifyListener
 	 */
-//	public NotifyEventListener getNotifyEventListener();
+	public NotifyEventListener getNotifyEventListener();
 
 	/**
 	 * 设置客户端状态
@@ -93,7 +94,7 @@ public interface FetionContext
 	/**
 	 * 返回客户端状态
 	 */
-//	public ClientState getState();
+	public ClientState getState();
 
 	/**
 	 * 返回区域化配置
@@ -105,6 +106,6 @@ public interface FetionContext
 	 * 通常这个方法是为Client处理不可恢复的异常准备的
 	 * @param exception
 	 */
-//	public void handleException(FetionException exception);
+	public void handleException(FetionException exception);
 
 }
