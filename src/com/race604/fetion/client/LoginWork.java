@@ -35,6 +35,7 @@ import com.race604.fetion.data.FetionConfig;
 import com.race604.fetion.data.LocaleSetting;
 import com.race604.fetion.data.LoginState;
 import com.race604.fetion.data.ObjectWaiter;
+import com.race604.fetion.data.Presence;
 import com.race604.fetion.data.VerifyImage;
 
 /**
