@@ -31,14 +31,12 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import net.solosky.maplefetion.FetionClient;
-import net.solosky.maplefetion.FetionConfig;
-import net.solosky.maplefetion.bean.User;
-
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+
+import com.race604.fetion.client.FetionClient;
 
 /**
  *

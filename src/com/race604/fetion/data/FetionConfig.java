@@ -41,9 +41,6 @@ import java.util.Properties;
  */
 public class FetionConfig
 {
-	// FIXME 协议的版本，这个参数应该放在FetionClient中，由于还没有实现client，所有先放在这里
-	public static final String PROTOCOL_VERSION = "4.1.0740";
-	
 	private static Properties prop;
 	private static boolean initialized;
 	

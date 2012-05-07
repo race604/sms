@@ -25,6 +25,7 @@
  */
 package com.race604.fetion.client;
 
+import com.race604.fetion.data.LocaleSetting;
 import com.race604.fetion.data.LoginState;
 import com.race604.fetion.data.User;
 import com.race604.fetion.data.VerifyImage;
@@ -65,7 +66,7 @@ public interface SSISign
 //	 * 设置区域化的配置
 //	 * @param localeSetting
 //	 */
-//	public void setLocaleSetting(LocaleSetting localeSetting);
+	public void setLocaleSetting(LocaleSetting localeSetting);
 	
 	/**
 	 * 设置飞信上下文

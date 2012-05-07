@@ -41,6 +41,7 @@ import android.util.Log;
 import com.race604.fetion.data.Credential;
 import com.race604.fetion.data.FetionConfig;
 import com.race604.fetion.data.FetionStore;
+import com.race604.fetion.data.LocaleSetting;
 import com.race604.fetion.data.LoginState;
 import com.race604.fetion.data.User;
 import com.race604.fetion.data.VerifyImage;
@@ -55,6 +56,7 @@ import com.race604.fetion.data.XMLHelper;
 public class SSISignV4 implements SSISign
 {
 	public static String TAG = "SSISignV4";
+	private LocaleSetting localeSetting;
 	private FetionContext fetionContext;
 	
 	/* (non-Javadoc)
@@ -239,6 +241,11 @@ public class SSISignV4 implements SSISign
 			b.append("&algorithm="+img.getAlgorithm());
 		}
 		return b.toString();
+	}
+
+	@Override
+	public void setLocaleSetting(LocaleSetting localeSetting) {
+		this.localeSetting = localeSetting;
 	}
 
 }

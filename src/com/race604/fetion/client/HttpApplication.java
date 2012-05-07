@@ -125,7 +125,7 @@ public class HttpApplication
 		URL url = new URL(picurl);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 		conn.addRequestProperty("User-Agent", "IIC2.0/PC "
-				+ FetionConfig.PROTOCOL_VERSION); // 必须要加这个，否则失败 很奇怪
+				+ FetionClient.PROTOCOL_VERSION); // 必须要加这个，否则失败 很奇怪
 		if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
 			Element e = XMLHelper.build(conn.getInputStream());
 			Element pic = XMLHelper.find(e, "/results/pic-certificate");
