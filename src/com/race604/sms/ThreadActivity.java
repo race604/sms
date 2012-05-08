@@ -106,11 +106,7 @@ public class ThreadActivity extends SherlockListActivity implements
 	
 	private void restartMainActivity() {
 		Intent intent = new Intent(SmsApplication.get().getApplicationContext(), MainActivity.class);
-		intent.setAction(Intent.ACTION_MAIN);
-		intent.addCategory(Intent.CATEGORY_LAUNCHER);
-		intent.addCategory(Intent.CATEGORY_LAUNCHER);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 		startActivity(intent);
 	}
 

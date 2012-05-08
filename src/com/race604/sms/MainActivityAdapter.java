@@ -89,8 +89,11 @@ public class MainActivityAdapter extends BaseAdapter{
 		
 		from += " (" + thread.count + ")";
 		holder.from.setText(from);
-		holder.body.setText(thread.latest.body);
-		
+		String body = thread.latest.body;
+		if (body == null) {
+			body = mContext.getString(R.string.null_content);
+		}
+		holder.body.setText(body);
 		return rowView;
 	}
 	

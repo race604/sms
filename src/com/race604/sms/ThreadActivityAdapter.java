@@ -98,7 +98,12 @@ public class ThreadActivityAdapter  extends ArrayAdapter<MSInfo>{
 		Time time = new Time();
 		time.set(sms.date);
 		holder.time.setText(time.format("%Y-%m-%d %H:%M"));
-		holder.sms.setText(sms.body);
+		
+		String body = sms.body;
+		if (body == null) {
+			body = mContext.getString(R.string.null_content);
+		}
+		holder.sms.setText(body);
 		
 		if (sms.read == 0) {
 			sms.read = 1;

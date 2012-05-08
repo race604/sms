@@ -28,5 +28,12 @@
     <string name="failure_nullpdu">Null PDU</string>
     <string name="failure_radiooff">Radio off</string>
     <string name="failure_canceled">SMS not delivered</string>
+    <string name="null_content">(No Content)</string>
+    <string name="label_account">Account:</string>
+    <string name="fetion_accoount_hint">Your Phone or Fetion ID</string>
+    <string name="password_hint">Your password</string>
+    <string name="label_password">Password:</string>
+    <string name="login">Login</string>
+    <string name="label_hidden">Hidden:</string>
 
 </resources>

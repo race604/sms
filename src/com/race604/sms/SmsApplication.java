@@ -1,5 +1,7 @@
 package com.race604.sms;
 
+import com.race604.fetion.client.FetionClient;
+
 import android.app.Activity;
 import android.app.Application;
 import android.util.DisplayMetrics;
@@ -13,6 +15,16 @@ public class SmsApplication extends Application {
 	
 	public static final String PREFER = "com.race604.sms";
 	public static final String NOTIFICATION_COUNT = "notification_count";
+	
+	private static FetionClient mFetionClient = null;
+	
+	public synchronized void setFetionClient(FetionClient client) {
+		mFetionClient = client;
+	}
+	
+	public FetionClient getFetionClient() {
+		return mFetionClient;
+	}
 	
 	@Override
 	public void onCreate() {

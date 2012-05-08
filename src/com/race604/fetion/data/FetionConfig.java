@@ -33,6 +33,8 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Properties;
 
+import com.race604.sms.SmsApplication;
+
 /**
  *
  *	飞信配置
@@ -156,7 +158,13 @@ public class FetionConfig
 	{
 		//在类的根目录查找默认的系统配置文件，maplefetionDefault.properties
 		//这个文件定义的所有飞信的配置，如果配置都是基于这个配置文件，因为存在惯性配置，所以不会存在配置不存在的错误
-		InputStream in = FetionConfig.class.getResourceAsStream("/resources/maplefetion.default.properties");
+		// InputStream in = FetionConfig.class.getResourceAsStream("/resources/fetion.default.properties");
+		InputStream in = null;
+		try {
+			in = SmsApplication.get().getAssets().open("fetion.default.properties");
+		} catch (IOException e1) {
+			throw new IllegalStateException("Error occured when reading maplefetionDefault.properties in classpath.");
+		}
 		if(in!=null) {
 			prop = new Properties();
 			try {

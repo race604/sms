@@ -204,13 +204,14 @@ public class Utility {
 				info.body = cursor.getString(subjectCol);
 				info.type = cursor.getInt(typeCol);
 				info.msType = MSInfo.MSType.MMS;
-				try {
-					info.body = new String(info.body.getBytes("ISO8859_1"),
-							"utf-8");
-				} catch (UnsupportedEncodingException e1) {
-					e1.printStackTrace();
+				if (info.body != null) {
+					try {
+						info.body = new String(info.body.getBytes("ISO8859_1"),
+								"utf-8");
+					} catch (UnsupportedEncodingException e1) {
+						e1.printStackTrace();
+					}
 				}
-
 				list.add(info);
 
 			} while (cursor.moveToNext());

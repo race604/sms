@@ -29,9 +29,8 @@
 /**
  * 
  */
-package net.solosky.maplefetion;
+package com.race604.fetion.client;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,8 +38,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.jdom.JDOMException;
+
 import com.race604.fetion.data.Buddy;
 import com.race604.fetion.data.FetionConfig;
+import com.race604.fetion.data.FetionException;
 import com.race604.fetion.data.FetionStore;
 import com.race604.fetion.data.LocaleSetting;
 import com.race604.fetion.data.LoginState;
@@ -48,6 +50,7 @@ import com.race604.fetion.data.Message;
 import com.race604.fetion.data.Presence;
 import com.race604.fetion.data.SimpleFetionStore;
 import com.race604.fetion.data.User;
+import com.race604.fetion.data.VerifyImage;
 
 /**
  *
@@ -357,7 +360,7 @@ public class FetionClient implements FetionContext
 //    	this.transferFactory.openFactory();
 //    	
 //    	this.dialogFactory   = new DialogFactory(this);
-//    	this.loginWork       = new LoginWork(this, Presence.ONLINE);
+    	this.loginWork       = new LoginWork(this, Presence.ONLINE);
 //    	
 //    	this.transferFactory.setFetionContext(this);
     	
@@ -426,29 +429,30 @@ public class FetionClient implements FetionContext
      */
     public void processVerify(ImageVerifyEvent event) 
     {
-    	if(event.getVerifyAction()==ImageVerifyEvent.SSI_VERIFY) {
-    		this.loginWork.setVerifyImage(event.getVerifyImage());
-    	}else if(event.getVerifyAction()==ImageVerifyEvent.SIPC_VERIFY) {
-    		
-    		SipcRequest request = event.getTargetRequest();
-    		VerifyImage image   = event.getVerifyImage();
-    		
-    		//移除之前的A字段
-    		Iterator<SipcHeader> it = request.getHeaders().iterator();
-    		while(it.hasNext()) {
-    			SipcHeader h = it.next();
-    			if(h.getName().equals(SipcHeader.AUTHORIZATION) && h.getValue().indexOf("Verify response=")!=-1) {
-    				it.remove();
-    			}
-    		}
-    		
-    		request.addHeader(SipcHeader.AUTHORIZATION, "Verify response=\""+image.getVerifyCode()+"\",algorithm=\""+image.getAlgorithm()+"\"," +
-    				"type=\""+image.getVerifyType()+"\",chid=\""+image.getImageId()+"\"");
-    		request.resetReplyTimes();
-    		event.getTargetDialog().process(request);
-    	}else {
-    		throw new IllegalArgumentException("Invalid verify action:"+event.getVerifyAction());
-    	}
+    	// TODO 处理图片验证之后的工作
+//    	if(event.getVerifyAction()==ImageVerifyEvent.SSI_VERIFY) {
+//    		this.loginWork.setVerifyImage(event.getVerifyImage());
+//    	}else if(event.getVerifyAction()==ImageVerifyEvent.SIPC_VERIFY) {
+//    		
+//    		SipcRequest request = event.getTargetRequest();
+//    		VerifyImage image   = event.getVerifyImage();
+//    		
+//    		//移除之前的A字段
+//    		Iterator<SipcHeader> it = request.getHeaders().iterator();
+//    		while(it.hasNext()) {
+//    			SipcHeader h = it.next();
+//    			if(h.getName().equals(SipcHeader.AUTHORIZATION) && h.getValue().indexOf("Verify response=")!=-1) {
+//    				it.remove();
+//    			}
+//    		}
+//    		
+//    		request.addHeader(SipcHeader.AUTHORIZATION, "Verify response=\""+image.getVerifyCode()+"\",algorithm=\""+image.getAlgorithm()+"\"," +
+//    				"type=\""+image.getVerifyType()+"\",chid=\""+image.getImageId()+"\"");
+//    		request.resetReplyTimes();
+//    		event.getTargetDialog().process(request);
+//    	}else {
+//    		throw new IllegalArgumentException("Invalid verify action:"+event.getVerifyAction());
+//    	}
     }
     
     
@@ -462,10 +466,10 @@ public class FetionClient implements FetionContext
     	if(this.state==ClientState.LOGGING) {
     		this.cancelLogin();
     	}else {
-    		ActionEventListener listener = event.getTargetListener();
-    		if(listener!=null) {
-    			listener.fireEevent(new FailureEvent(FailureType.VERIFY_CANCELED));
-    		}
+//    		ActionEventListener listener = event.getTargetListener();
+//    		if(listener!=null) {
+//    			listener.fireEevent(new FailureEvent(FailureType.VERIFY_CANCELED));
+//    		}
     	}
     }
     
@@ -476,48 +480,48 @@ public class FetionClient implements FetionContext
     public void handleException(FetionException exception)
     {
     	
-    	//根据不同的异常类型，来设置客户端的状态
-    	if(exception instanceof TransferException) {				//网络错误
-    		logger.fatal("Connection error. Please try to login again after several time.");
-    		this.state = ClientState.CONNECTION_ERROR;
-    	}else if(exception instanceof RegistrationException) {	//注册异常
-    		RegistrationException re = (RegistrationException) exception;
-    		if(re.getRegistrationType()==RegistrationException.DEREGISTERED) {
-    			logger.fatal("You have logined by other client.");
-    			this.state = ClientState.OTHER_LOGIN;		//用户其他地方登陆
-    		}else if(re.getRegistrationType()==RegistrationException.DISCONNECTED) {
-    			logger.fatal("Server closed connecction. Please try to login again after several time.");
-    			this.state = ClientState.DISCONNECTED;		//服务器关闭了连接
-    		}else {
-    			logger.fatal("Unknown registration exception", exception);
-    		}
-		}else if(exception instanceof SystemException){		//系统错误,为了保证系统的稳定性，这里只是做个记录，并不退出客户端
-			logger.fatal("System error, just log it and ignore it. Not exit the client for stablity reason.", exception);
-			CrushBuilder.handleCrushReport(exception, ((SystemException) exception).getArgs());		//生成错误报告
-			return ;		//返回，不退出客户端
-    	}else if(exception instanceof LoginException){		//登录错误
-    		logger.fatal("Login error. state="+((LoginException)exception).getState().name());
-    		this.state = ClientState.LOGIN_ERROR;
-    	}else {
-    		logger.fatal("Unknown error, just log it and ignore it. Not exit the client for stablity reason.", exception);
-			CrushBuilder.handleCrushReport(exception);			//生成错误报告
-			return ;
-    	}
-
-    	//尝试关闭所有的对话框，对话框应该判断当前客户端状态然后决定是否进行某些操作
-    	try {
-	        this.dialogFactory.closeAllDialog();
-        } catch (FetionException e) {
-        	logger.warn("Close All Dialog error.", e);
-        }
-        
-        //最后才能释放系统资源，因为关闭对话可以使用到了系统资源
-    	this.dispose();
-    	
-    	//上面只是更新了客户端状态，还没有回调状态改变函数，为了防止用户在回调函数里面做一些
-    	//可能会影响客户端状态的操作，如马上登陆，所以把回调用户函数放在最后面来完成
-    	if(this.notifyEventListener!=null)
-    		this.notifyEventListener.fireEvent(new ClientStateEvent(state));
+//    	//根据不同的异常类型，来设置客户端的状态
+//    	if(exception instanceof TransferException) {				//网络错误
+//    		logger.fatal("Connection error. Please try to login again after several time.");
+//    		this.state = ClientState.CONNECTION_ERROR;
+//    	}else if(exception instanceof RegistrationException) {	//注册异常
+//    		RegistrationException re = (RegistrationException) exception;
+//    		if(re.getRegistrationType()==RegistrationException.DEREGISTERED) {
+//    			logger.fatal("You have logined by other client.");
+//    			this.state = ClientState.OTHER_LOGIN;		//用户其他地方登陆
+//    		}else if(re.getRegistrationType()==RegistrationException.DISCONNECTED) {
+//    			logger.fatal("Server closed connecction. Please try to login again after several time.");
+//    			this.state = ClientState.DISCONNECTED;		//服务器关闭了连接
+//    		}else {
+//    			logger.fatal("Unknown registration exception", exception);
+//    		}
+//		}else if(exception instanceof SystemException){		//系统错误,为了保证系统的稳定性，这里只是做个记录，并不退出客户端
+//			logger.fatal("System error, just log it and ignore it. Not exit the client for stablity reason.", exception);
+//			CrushBuilder.handleCrushReport(exception, ((SystemException) exception).getArgs());		//生成错误报告
+//			return ;		//返回，不退出客户端
+//    	}else if(exception instanceof LoginException){		//登录错误
+//    		logger.fatal("Login error. state="+((LoginException)exception).getState().name());
+//    		this.state = ClientState.LOGIN_ERROR;
+//    	}else {
+//    		logger.fatal("Unknown error, just log it and ignore it. Not exit the client for stablity reason.", exception);
+//			CrushBuilder.handleCrushReport(exception);			//生成错误报告
+//			return ;
+//    	}
+//
+//    	//尝试关闭所有的对话框，对话框应该判断当前客户端状态然后决定是否进行某些操作
+//    	try {
+//	        this.dialogFactory.closeAllDialog();
+//        } catch (FetionException e) {
+//        	logger.warn("Close All Dialog error.", e);
+//        }
+//        
+//        //最后才能释放系统资源，因为关闭对话可以使用到了系统资源
+//    	this.dispose();
+//    	
+//    	//上面只是更新了客户端状态，还没有回调状态改变函数，为了防止用户在回调函数里面做一些
+//    	//可能会影响客户端状态的操作，如马上登陆，所以把回调用户函数放在最后面来完成
+//    	if(this.notifyEventListener!=null)
+//    		this.notifyEventListener.fireEvent(new ClientStateEvent(state));
     }
 
     
@@ -525,9 +529,10 @@ public class FetionClient implements FetionContext
      * 重新获取验证图片
      * @param event 图片验证事件，如果获取成功，将会把获取的验证码图片注入到事件中
      * @throws IOException 
+     * @throws JDOMException 
      * @throws ParseException 
      */
-    public void flushVerifyImage(ImageVerifyEvent event) throws ParseException, IOException
+    public void flushVerifyImage(ImageVerifyEvent event) throws /*ParseException,*/ IOException, JDOMException
     {
     	VerifyImage image = HttpApplication.fetchVerifyImage(getFetionUser(), 
     			getLocaleSetting(), event.getVerifyImage().getAlgorithm(), 
@@ -606,7 +611,8 @@ public class FetionClient implements FetionContext
 		//为了便于掉线后可以重新登录，把初始化对象的工作放在登录函数做
 		this.init();
 		this.loginWork.setPresence(presence);
-		this.executor.submitTask(this.loginWork);
+		this.loginWork.run();
+//		this.executor.submitTask(this.loginWork);
 	}
 	
 	

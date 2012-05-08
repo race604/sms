@@ -87,8 +87,8 @@ public class LoginWork implements Runnable {
 		this.context = context;
 		this.presence = presence;
 		this.signAction = new SSISignV4();
-		// this.ssiVerifyWaiter = new ObjectWaiter<VerifyImage>();
-		// this.loginWaiter = new ObjectWaiter<LoginState>();
+		this.ssiVerifyWaiter = new ObjectWaiter<VerifyImage>();
+		this.loginWaiter = new ObjectWaiter<LoginState>();
 
 		this.signAction.setLocaleSetting(this.context.getLocaleSetting());
 		this.signAction.setFetionContext(this.context);
@@ -110,7 +110,8 @@ public class LoginWork implements Runnable {
 		this.checkCanceledLogin();
 		this.SSISign(); // SSI登录
 		this.checkCanceledLogin();
-		this.openServerDialog(); // 服务器连接并验证
+		// TODO 实现服务器的连接
+		// this.openServerDialog(); // 服务器连接并验证
 		this.checkCanceledLogin();
 		// this.getContactsInfo(); // 获取联系人列表和信息
 		// this.checkCanceledLogin();
@@ -141,14 +142,16 @@ public class LoginWork implements Runnable {
 			this.login();
 		} catch (LoginException e) {
 			this.updateLoginState(e.getState(), e);
-		/*} catch (TransferException e) {
-			this.updateLoginState(LoginState.SIPC_CONNECT_FAIL, e);
-		} catch (RequestTimeoutException e) {
-			this.updateLoginState(LoginState.SIPC_TIMEOUT, e);
-		} catch (DialogException e) {
-			this.updateLoginState(LoginState.OTHER_ERROR, e);
-		} catch (SystemException e) {
-			this.updateLoginState(LoginState.OTHER_ERROR, e);*/
+			/*
+			 * } catch (TransferException e) {
+			 * this.updateLoginState(LoginState.SIPC_CONNECT_FAIL, e); } catch
+			 * (RequestTimeoutException e) {
+			 * this.updateLoginState(LoginState.SIPC_TIMEOUT, e); } catch
+			 * (DialogException e) {
+			 * this.updateLoginState(LoginState.OTHER_ERROR, e); } catch
+			 * (SystemException e) {
+			 * this.updateLoginState(LoginState.OTHER_ERROR, e);
+			 */
 		} catch (InterruptedException e) {
 			this.updateLoginState(LoginState.OTHER_ERROR, e);
 		}
@@ -220,46 +223,47 @@ public class LoginWork implements Runnable {
 	 * @throws InterruptedException
 	 * @throws SystemException
 	 */
-	private void openServerDialog() throws LoginException, TransferException,
-			RequestTimeoutException, DialogException, SystemException,
-			InterruptedException {
-		// 判断是否有飞信号
-		if (this.context.getFetionUser().getFetionId() == 0) {
-			throw new IllegalArgumentException(
-					"Invalid fetion id. if disabled SSI sign, you must login with fetion id..");
-		}
-
-		this.updateLoginState(LoginState.SIPC_REGISTER_DOING, null);
-		ServerDialog serverDialog = this.context.getDialogFactory()
-				.createServerDialog();
-		serverDialog.openDialog();
-
-		ActionEventFuture future = new ActionEventFuture();
-		ActionEventListener listener = new FutureActionEventListener(future);
-
-		// 注册服务器
-		serverDialog.register(presence, listener);
-		Dialog.assertActionEvent(future.waitActionEventWithException(),
-				ActionEventType.SUCCESS);
-
-		// 用户验证
-		future.clear();
-		serverDialog.userAuth(presence, listener);
-		ActionEvent event = future.waitActionEventWithoutException();
-		if (event.getEventType() == ActionEventType.SUCCESS) {
-			this.updateLoginState(LoginState.SIPC_REGISGER_SUCCESS, null);
-		} else if (event.getEventType() == ActionEventType.FAILURE) {
-			FailureEvent evt = (FailureEvent) event;
-			FailureType type = evt.getFailureType();
-			if (type == FailureType.REGISTER_FORBIDDEN) {
-				throw new LoginException(LoginState.SIPC_ACCOUNT_FORBIDDEN); // 帐号限制登录，可能存在不安全因素，请修改密码后再登录
-			} else if (type == FailureType.AUTHORIZATION_FAIL) {
-				throw new LoginException(LoginState.SIPC_AUTH_FAIL); // 登录验证失败
-			} else {
-				Dialog.assertActionEvent(event, ActionEventType.SUCCESS);
-			}
-		}
-	}
+	// private void openServerDialog() throws LoginException, TransferException,
+	// RequestTimeoutException, DialogException, SystemException,
+	// InterruptedException {
+	// // 判断是否有飞信号
+	// if (this.context.getFetionUser().getFetionId() == 0) {
+	// throw new IllegalArgumentException(
+	// "Invalid fetion id. if disabled SSI sign, you must login with fetion id..");
+	// }
+	//
+	// this.updateLoginState(LoginState.SIPC_REGISTER_DOING, null);
+	// ServerDialog serverDialog = this.context.getDialogFactory()
+	// .createServerDialog();
+	// serverDialog.openDialog();
+	//
+	// ActionEventFuture future = new ActionEventFuture();
+	// ActionEventListener listener = new FutureActionEventListener(future);
+	//
+	// // 注册服务器
+	// serverDialog.register(presence, listener);
+	// Dialog.assertActionEvent(future.waitActionEventWithException(),
+	// ActionEventType.SUCCESS);
+	//
+	// // 用户验证
+	// future.clear();
+	// serverDialog.userAuth(presence, listener);
+	// ActionEvent event = future.waitActionEventWithoutException();
+	// if (event.getEventType() == ActionEventType.SUCCESS) {
+	// this.updateLoginState(LoginState.SIPC_REGISGER_SUCCESS, null);
+	// } else if (event.getEventType() == ActionEventType.FAILURE) {
+	// FailureEvent evt = (FailureEvent) event;
+	// FailureType type = evt.getFailureType();
+	// if (type == FailureType.REGISTER_FORBIDDEN) {
+	// throw new LoginException(LoginState.SIPC_ACCOUNT_FORBIDDEN); //
+	// 帐号限制登录，可能存在不安全因素，请修改密码后再登录
+	// } else if (type == FailureType.AUTHORIZATION_FAIL) {
+	// throw new LoginException(LoginState.SIPC_AUTH_FAIL); // 登录验证失败
+	// } else {
+	// Dialog.assertActionEvent(event, ActionEventType.SUCCESS);
+	// }
+	// }
+	// }
 
 	/**
 	 * 获取联系人信息
@@ -270,24 +274,24 @@ public class LoginWork implements Runnable {
 	 * @throws RequestTimeoutException
 	 * @throws IllegalResponseException
 	 */
-//	private void getContactsInfo() throws IllegalResponseException,
-//			RequestTimeoutException, TransferException, SystemException,
-//			InterruptedException {
-//		ActionEventFuture future = new ActionEventFuture();
-//		ActionEventListener listener = new FutureActionEventListener(future);
-//		ServerDialog dialog = this.context.getDialogFactory().getServerDialog();
-//		this.updateLoginState(LoginState.GET_CONTACTS_INFO_DOING, null);
-//
-//		// 订阅异步通知
-//		if (this.context.getFetionStore().getBuddyList().size() > 0) {
-//			future.clear();
-//			dialog.subscribeBuddyNotify(listener);
-//			Dialog.assertActionEvent(future.waitActionEventWithException(),
-//					ActionEventType.SUCCESS);
-//		}
-//
-//		this.updateLoginState(LoginState.GET_CONTACTS_INFO_SUCCESS, null);
-//	}
+	// private void getContactsInfo() throws IllegalResponseException,
+	// RequestTimeoutException, TransferException, SystemException,
+	// InterruptedException {
+	// ActionEventFuture future = new ActionEventFuture();
+	// ActionEventListener listener = new FutureActionEventListener(future);
+	// ServerDialog dialog = this.context.getDialogFactory().getServerDialog();
+	// this.updateLoginState(LoginState.GET_CONTACTS_INFO_DOING, null);
+	//
+	// // 订阅异步通知
+	// if (this.context.getFetionStore().getBuddyList().size() > 0) {
+	// future.clear();
+	// dialog.subscribeBuddyNotify(listener);
+	// Dialog.assertActionEvent(future.waitActionEventWithException(),
+	// ActionEventType.SUCCESS);
+	// }
+	//
+	// this.updateLoginState(LoginState.GET_CONTACTS_INFO_SUCCESS, null);
+	// }
 
 	/**
 	 * 获取群信息
@@ -298,62 +302,62 @@ public class LoginWork implements Runnable {
 	 * @throws RequestTimeoutException
 	 * @throws IllegalResponseException
 	 */
-//	private void getGroupsInfo() throws IllegalResponseException,
-//			RequestTimeoutException, TransferException, SystemException,
-//			InterruptedException {
-//		ActionEventFuture future = new ActionEventFuture();
-//		ActionEventListener listener = new FutureActionEventListener(future);
-//		ServerDialog dialog = this.context.getDialogFactory().getServerDialog();
-//		StoreVersion storeVersion = this.context.getFetionStore()
-//				.getStoreVersion();
-//		StoreVersion userVersion = this.context.getFetionUser()
-//				.getStoreVersion();
-//
-//		this.updateLoginState(LoginState.GET_GROUPS_INFO_DOING, null);
-//		// 获取群列表
-//		future.clear();
-//		dialog.getGroupList(listener);
-//		Dialog.assertActionEvent(future.waitActionEventWithException(),
-//				ActionEventType.SUCCESS);
-//
-//		// 如果群列表为空，就不发送下面的一些请求了
-//		FetionStore store = this.context.getFetionStore();
-//		if (store.getGroupList().size() == 0) {
-//			logger.debug("The group list is empty, group dialog login is skipped.");
-//			return;
-//		}
-//
-//		// 如果当前存储版本和服务器相同，就不获取群信息和群成员列表，
-//		// TODO ..这里只是解决了重新登录的问题，事实上这里问题很大，群信息分成很多
-//		// 用户加入的群列表 groupListVersion
-//		// 某群的信息 groupInfoVersion
-//		// 群成员列表 groupMemberListVersion
-//		// 暂时就这样，逐步完善中.....
-//		logger.debug("GroupListVersion: server="
-//				+ userVersion.getGroupVersion() + ", local="
-//				+ storeVersion.getGroupVersion());
-//		if (storeVersion.getGroupVersion() != userVersion.getGroupVersion()) {
-//			// 更新存储版本
-//			storeVersion.setGroupVersion(userVersion.getGroupVersion());
-//			// 获取群信息
-//			future.clear();
-//			dialog.getGroupsInfo(this.context.getFetionStore().getGroupList(),
-//					listener);
-//			Dialog.assertActionEvent(future.waitActionEventWithException(),
-//					ActionEventType.SUCCESS);
-//
-//			// 获取群成员
-//			future.clear();
-//			dialog.getMemberList(this.context.getFetionStore().getGroupList(),
-//					listener);
-//			Dialog.assertActionEvent(future.waitActionEventWithException(),
-//					ActionEventType.SUCCESS);
-//
-//			storeVersion.setGroupVersion(userVersion.getGroupVersion());
-//		}
-//
-//		this.updateLoginState(LoginState.GET_GROUPS_INFO_SUCCESS, null);
-//	}
+	// private void getGroupsInfo() throws IllegalResponseException,
+	// RequestTimeoutException, TransferException, SystemException,
+	// InterruptedException {
+	// ActionEventFuture future = new ActionEventFuture();
+	// ActionEventListener listener = new FutureActionEventListener(future);
+	// ServerDialog dialog = this.context.getDialogFactory().getServerDialog();
+	// StoreVersion storeVersion = this.context.getFetionStore()
+	// .getStoreVersion();
+	// StoreVersion userVersion = this.context.getFetionUser()
+	// .getStoreVersion();
+	//
+	// this.updateLoginState(LoginState.GET_GROUPS_INFO_DOING, null);
+	// // 获取群列表
+	// future.clear();
+	// dialog.getGroupList(listener);
+	// Dialog.assertActionEvent(future.waitActionEventWithException(),
+	// ActionEventType.SUCCESS);
+	//
+	// // 如果群列表为空，就不发送下面的一些请求了
+	// FetionStore store = this.context.getFetionStore();
+	// if (store.getGroupList().size() == 0) {
+	// logger.debug("The group list is empty, group dialog login is skipped.");
+	// return;
+	// }
+	//
+	// // 如果当前存储版本和服务器相同，就不获取群信息和群成员列表，
+	// // TODO ..这里只是解决了重新登录的问题，事实上这里问题很大，群信息分成很多
+	// // 用户加入的群列表 groupListVersion
+	// // 某群的信息 groupInfoVersion
+	// // 群成员列表 groupMemberListVersion
+	// // 暂时就这样，逐步完善中.....
+	// logger.debug("GroupListVersion: server="
+	// + userVersion.getGroupVersion() + ", local="
+	// + storeVersion.getGroupVersion());
+	// if (storeVersion.getGroupVersion() != userVersion.getGroupVersion()) {
+	// // 更新存储版本
+	// storeVersion.setGroupVersion(userVersion.getGroupVersion());
+	// // 获取群信息
+	// future.clear();
+	// dialog.getGroupsInfo(this.context.getFetionStore().getGroupList(),
+	// listener);
+	// Dialog.assertActionEvent(future.waitActionEventWithException(),
+	// ActionEventType.SUCCESS);
+	//
+	// // 获取群成员
+	// future.clear();
+	// dialog.getMemberList(this.context.getFetionStore().getGroupList(),
+	// listener);
+	// Dialog.assertActionEvent(future.waitActionEventWithException(),
+	// ActionEventType.SUCCESS);
+	//
+	// storeVersion.setGroupVersion(userVersion.getGroupVersion());
+	// }
+	//
+	// this.updateLoginState(LoginState.GET_GROUPS_INFO_SUCCESS, null);
+	// }
 
 	/**
 	 * 打开群会话
@@ -362,19 +366,19 @@ public class LoginWork implements Runnable {
 	 * @throws RequestTimeoutException
 	 * @throws TransferException
 	 */
-//	private void openGroupDialogs() throws TransferException,
-//			RequestTimeoutException, DialogException {
-//		this.updateLoginState(LoginState.GROUPS_REGISTER_DOING, null);
-//		Iterator<Group> it = this.context.getFetionStore().getGroupList()
-//				.iterator();
-//		while (it.hasNext()) {
-//			GroupDialog groupDialog = this.context.getDialogFactory()
-//					.createGroupDialog(it.next());
-//			groupDialog.openDialog();
-//		}
-//
-//		this.updateLoginState(LoginState.GROUPS_REGISTER_SUCCESS, null);
-//	}
+	// private void openGroupDialogs() throws TransferException,
+	// RequestTimeoutException, DialogException {
+	// this.updateLoginState(LoginState.GROUPS_REGISTER_DOING, null);
+	// Iterator<Group> it = this.context.getFetionStore().getGroupList()
+	// .iterator();
+	// while (it.hasNext()) {
+	// GroupDialog groupDialog = this.context.getDialogFactory()
+	// .createGroupDialog(it.next());
+	// groupDialog.openDialog();
+	// }
+	//
+	// this.updateLoginState(LoginState.GROUPS_REGISTER_SUCCESS, null);
+	// }
 
 	/**
 	 * 更新登录状态
@@ -399,7 +403,7 @@ public class LoginWork implements Runnable {
 			// TODO 这里startKeepAlive()，保持alive，需要实现
 			// this.context.getDialogFactory().getServerDialog().startKeepAlive();
 		} else {
-			Log.w(TAG, "Unhandled login state="+state);
+			Log.w(TAG, "Unhandled login state=" + state);
 		}
 	}
 
