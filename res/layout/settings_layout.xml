@@ -41,18 +41,53 @@
                 android:inputType="textPassword"
                 android:lines="1" />
         </TableRow>
-        
+
         <TableRow>
-            
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/label_hidden" />
-            
-            <CheckBox android:id="@+id/cb_fetion_presence"
+
+            <CheckBox
+                android:id="@+id/cb_fetion_presence"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"/>
+                android:checked="true" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tr_verify"
+            android:visibility="gone"
+            android:gravity="center_vertical" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_verify" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical" >
+
+                <ImageView
+                    android:id="@+id/iv_verify_img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/label_verify"
+                    android:src="@drawable/ic_launcher"
+                    android:maxHeight="40dp"
+                    android:maxWidth="80dp" />
+
+                <EditText
+                    android:id="@+id/et_verify_code"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/verify_code_hint" />
+            </LinearLayout>
         </TableRow>
 
         <TableRow>

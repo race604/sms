@@ -35,5 +35,7 @@
     <string name="label_password">Password:</string>
     <string name="login">Login</string>
     <string name="label_hidden">Hidden:</string>
+    <string name="label_verify">Verify:</string>
+    <string name="verify_code_hint">Input the code</string>
 
 </resources>
