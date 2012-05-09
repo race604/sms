@@ -111,7 +111,7 @@ public class LoginWork implements Runnable {
 		this.SSISign(); // SSI登录
 		this.checkCanceledLogin();
 		// TODO 实现服务器的连接
-		// this.openServerDialog(); // 服务器连接并验证
+		this.openServerDialog(); // 服务器连接并验证
 		this.checkCanceledLogin();
 		// this.getContactsInfo(); // 获取联系人列表和信息
 		// this.checkCanceledLogin();
