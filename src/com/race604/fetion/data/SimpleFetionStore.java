@@ -49,7 +49,7 @@ public class SimpleFetionStore implements FetionStore
 	/**
 	 * 分组列表
 	 */
-//	private ArrayList<Cord> cordList;
+	private ArrayList<Cord> cordList;
 	
 	/**
 	 * 群列表
@@ -83,11 +83,11 @@ public class SimpleFetionStore implements FetionStore
 	public SimpleFetionStore()
 	{
 		this.buddyList = new Hashtable<String, Buddy>();
-//		this.cordList  = new ArrayList<Cord>();
+		this.cordList  = new ArrayList<Cord>();
 //		this.groupList = new Hashtable<String, Group>();
 //		this.groupMemberList = new HashMap<String, HashMap<String,Member>>();
 		this.storeVersion = new StoreVersion();
-//		this.scheduleSMSList = new ArrayList<ScheduleSMS>();
+		this.scheduleSMSList = new ArrayList<ScheduleSMS>();
 		this.credentialList = new HashMap<String, Credential>();
 	}
 	
@@ -144,25 +144,25 @@ public class SimpleFetionStore implements FetionStore
 	/* (non-Javadoc)
      * @see net.solosky.maplefetion.store.IFetionStore#getBuddyList(java.lang.String)
      */
-//	public synchronized Collection<Buddy> getBuddyListByCord(Cord cord)
-//	{
-//		ArrayList<Buddy> list = new ArrayList<Buddy>();
-//		Iterator<Buddy> it = this.buddyList.values().iterator();
-//		Buddy buddy = null;
-//		String [] buddyCordIds = null;
-//		while(it.hasNext()) {
-//			buddy = it.next();
-//			if(buddy.getCordId()!=null){
-//				buddyCordIds = buddy.getCordId().split(";");
-//				for(String cid : buddyCordIds){
-//					if(cid.equals(Integer.toString(cord.getId()))){
-//						list.add(buddy);
-//					}
-//				}
-//			}
-//		}
-//		return list;
-//	}
+	public synchronized Collection<Buddy> getBuddyListByCord(Cord cord)
+	{
+		ArrayList<Buddy> list = new ArrayList<Buddy>();
+		Iterator<Buddy> it = this.buddyList.values().iterator();
+		Buddy buddy = null;
+		String [] buddyCordIds = null;
+		while(it.hasNext()) {
+			buddy = it.next();
+			if(buddy.getCordId()!=null){
+				buddyCordIds = buddy.getCordId().split(";");
+				for(String cid : buddyCordIds){
+					if(cid.equals(Integer.toString(cord.getId()))){
+						list.add(buddy);
+					}
+				}
+			}
+		}
+		return list;
+	}
 	
 	/* (non-Javadoc)
      * @see net.solosky.maplefetion.store.FetionStore#getBuddyListWithoutCord()
@@ -187,38 +187,38 @@ public class SimpleFetionStore implements FetionStore
 	/* (non-Javadoc)
      * @see net.solosky.maplefetion.store.IFetionStore#addCord(net.solosky.maplefetion.bean.FetionCord)
      */
-//	public synchronized void addCord(Cord cord)
-//	{
-//		this.cordList.add(cord);
-//	}
+	public synchronized void addCord(Cord cord)
+	{
+		this.cordList.add(cord);
+	}
 	
 	/* (non-Javadoc)
      * @see net.solosky.maplefetion.store.FetionStore#getCord(int)
      */
-//    @Override
-//    public synchronized Cord getCord(int cordId)
-//    {
-//	   Iterator<Cord> it = this.cordList.iterator();
-//	   while(it.hasNext()) {
-//		   Cord cord = it.next();
-//		   if(cord.getId()==cordId)
-//			   return cord;
-//	   }
-//	   return null;
-//    }
-//    
-//    public synchronized void deleteCord(Cord cord)
-//    {
-//    	this.cordList.remove(cord);
-//    }
+    @Override
+    public synchronized Cord getCord(int cordId)
+    {
+	   Iterator<Cord> it = this.cordList.iterator();
+	   while(it.hasNext()) {
+		   Cord cord = it.next();
+		   if(cord.getId()==cordId)
+			   return cord;
+	   }
+	   return null;
+    }
+    
+    public synchronized void deleteCord(Cord cord)
+    {
+    	this.cordList.remove(cord);
+    }
 	
 	/* (non-Javadoc)
      * @see net.solosky.maplefetion.store.IFetionStore#getCordList()
      */
-//	public synchronized Collection<Cord> getCordList()
-//	{
-//		return this.cordList;
-//	}
+	public synchronized Collection<Cord> getCordList()
+	{
+		return this.cordList;
+	}
 
     /**
      * 返回指定关系的列表
@@ -328,11 +328,11 @@ public class SimpleFetionStore implements FetionStore
 	/* (non-Javadoc)
      * @see net.solosky.maplefetion.store.FetionStore#clearCordList()
      */
-//    @Override
-//    public synchronized void clearCordList()
-//    {
-//    	this.cordList.clear();
-//    }
+    @Override
+    public synchronized void clearCordList()
+    {
+    	this.cordList.clear();
+    }
 
 	/* (non-Javadoc)
      * @see net.solosky.maplefetion.store.FetionStore#clearGroupList()

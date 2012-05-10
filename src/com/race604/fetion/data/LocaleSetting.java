@@ -37,6 +37,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 import com.race604.fetion.client.FetionClient;
+import com.race604.fetion.client.XMLHelper;
 
 /**
  *

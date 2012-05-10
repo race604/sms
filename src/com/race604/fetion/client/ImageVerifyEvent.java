@@ -25,7 +25,10 @@
  */
 package com.race604.fetion.client;
 
+import com.race604.fetion.client.dialog.Dialog;
 import com.race604.fetion.data.VerifyImage;
+import com.race604.fetion.event.action.ActionEventListener;
+import com.race604.fetion.sipc.SipcRequest;
 
 /**
  *
@@ -46,7 +49,7 @@ public class ImageVerifyEvent extends NotifyEvent
 	/**
 	 * 验证所对应的请求
 	 */
-//	private SipcRequest targetRequest;
+	private SipcRequest targetRequest;
 	
 	/**
 	 * 验证图片
@@ -56,12 +59,12 @@ public class ImageVerifyEvent extends NotifyEvent
 	/**
 	 * 来自的对话
 	 */
-//	private Dialog targetDialog;
+	private Dialog targetDialog;
 	
 	/**
 	 * 结果监听器
 	 */
-//	private ActionEventListener targetListener;
+	private ActionEventListener targetListener;
 	
 	/**
 	 * 出现验证码的原因
@@ -99,18 +102,18 @@ public class ImageVerifyEvent extends NotifyEvent
      * @param targetRequest
      * @param targetDialog
      */
-//    public ImageVerifyEvent(int verifyAction, VerifyImage verifyImage,
-//            String verifyReason, String verifyTips, SipcRequest targetRequest,
-//            Dialog targetDialog, ActionEventListener targetListener)
-//    {
-//	    this.verifyAction = verifyAction;
-//	    this.verifyImage = verifyImage;
-//	    this.verifyReason = verifyReason;
-//	    this.verifyTips = verifyTips;
-//	    this.targetRequest = targetRequest;
-//	    this.targetDialog = targetDialog;
-//	    this.targetListener = targetListener;
-//    }
+    public ImageVerifyEvent(int verifyAction, VerifyImage verifyImage,
+            String verifyReason, String verifyTips, SipcRequest targetRequest,
+            Dialog targetDialog, ActionEventListener targetListener)
+    {
+	    this.verifyAction = verifyAction;
+	    this.verifyImage = verifyImage;
+	    this.verifyReason = verifyReason;
+	    this.verifyTips = verifyTips;
+	    this.targetRequest = targetRequest;
+	    this.targetDialog = targetDialog;
+	    this.targetListener = targetListener;
+    }
 
 
 
@@ -136,10 +139,10 @@ public class ImageVerifyEvent extends NotifyEvent
 	/**
      * @return the targetRequest
      */
-//    public SipcRequest getTargetRequest()
-//    {
-//    	return targetRequest;
-//    }
+    public SipcRequest getTargetRequest()
+    {
+    	return targetRequest;
+    }
 
 	/**
      * @return the verifyImage
@@ -152,10 +155,10 @@ public class ImageVerifyEvent extends NotifyEvent
 	/**
      * @return the targetDialog
      */
-//    public Dialog getTargetDialog()
-//    {
-//    	return targetDialog;
-//    }
+    public Dialog getTargetDialog()
+    {
+    	return targetDialog;
+    }
 
 
 	/**
@@ -188,10 +191,9 @@ public class ImageVerifyEvent extends NotifyEvent
 	/**
      * @return the targetListener
      */
-//    public ActionEventListener getTargetListener()
-//    {
-//    	return targetListener;
-//    }
+	public ActionEventListener getTargetListener() {
+		return targetListener;
+	}
 
 
 	/* (non-Javadoc)

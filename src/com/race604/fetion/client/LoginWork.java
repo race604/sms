@@ -25,18 +25,28 @@
  */
 package com.race604.fetion.client;
 
-import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
 import android.util.Log;
 
-import com.race604.fetion.data.FetionConfig;
+import com.race604.fetion.client.dialog.Dialog;
+import com.race604.fetion.client.dialog.DialogException;
+import com.race604.fetion.client.dialog.ServerDialog;
 import com.race604.fetion.data.LocaleSetting;
 import com.race604.fetion.data.LoginState;
 import com.race604.fetion.data.ObjectWaiter;
 import com.race604.fetion.data.Presence;
 import com.race604.fetion.data.VerifyImage;
+import com.race604.fetion.event.ActionEvent;
+import com.race604.fetion.event.ActionEventType;
+import com.race604.fetion.event.action.ActionEventFuture;
+import com.race604.fetion.event.action.ActionEventListener;
+import com.race604.fetion.event.action.FailureEvent;
+import com.race604.fetion.event.action.FailureType;
+import com.race604.fetion.event.action.FutureActionEventListener;
+import com.race604.fetion.net.RequestTimeoutException;
+import com.race604.fetion.net.TransferException;
 
 /**
  * 
@@ -104,7 +114,7 @@ public class LoginWork implements Runnable {
 	 * @throws TransferException
 	 * @throws LoginException
 	 */
-	public void login() throws LoginException, InterruptedException {
+	public void login() throws LoginException, InterruptedException, TransferException, RequestTimeoutException, DialogException, SystemException {
 		this.context.updateState(ClientState.LOGGING);
 		this.updateSystemConfig(); // 获取自适应配置
 		this.checkCanceledLogin();
@@ -154,6 +164,18 @@ public class LoginWork implements Runnable {
 			 */
 		} catch (InterruptedException e) {
 			this.updateLoginState(LoginState.OTHER_ERROR, e);
+		} catch (TransferException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RequestTimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DialogException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SystemException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -223,47 +245,47 @@ public class LoginWork implements Runnable {
 	 * @throws InterruptedException
 	 * @throws SystemException
 	 */
-	// private void openServerDialog() throws LoginException, TransferException,
-	// RequestTimeoutException, DialogException, SystemException,
-	// InterruptedException {
-	// // 判断是否有飞信号
-	// if (this.context.getFetionUser().getFetionId() == 0) {
-	// throw new IllegalArgumentException(
-	// "Invalid fetion id. if disabled SSI sign, you must login with fetion id..");
-	// }
-	//
-	// this.updateLoginState(LoginState.SIPC_REGISTER_DOING, null);
-	// ServerDialog serverDialog = this.context.getDialogFactory()
-	// .createServerDialog();
-	// serverDialog.openDialog();
-	//
-	// ActionEventFuture future = new ActionEventFuture();
-	// ActionEventListener listener = new FutureActionEventListener(future);
-	//
-	// // 注册服务器
-	// serverDialog.register(presence, listener);
-	// Dialog.assertActionEvent(future.waitActionEventWithException(),
-	// ActionEventType.SUCCESS);
-	//
-	// // 用户验证
-	// future.clear();
-	// serverDialog.userAuth(presence, listener);
-	// ActionEvent event = future.waitActionEventWithoutException();
-	// if (event.getEventType() == ActionEventType.SUCCESS) {
-	// this.updateLoginState(LoginState.SIPC_REGISGER_SUCCESS, null);
-	// } else if (event.getEventType() == ActionEventType.FAILURE) {
-	// FailureEvent evt = (FailureEvent) event;
-	// FailureType type = evt.getFailureType();
-	// if (type == FailureType.REGISTER_FORBIDDEN) {
-	// throw new LoginException(LoginState.SIPC_ACCOUNT_FORBIDDEN); //
-	// 帐号限制登录，可能存在不安全因素，请修改密码后再登录
-	// } else if (type == FailureType.AUTHORIZATION_FAIL) {
-	// throw new LoginException(LoginState.SIPC_AUTH_FAIL); // 登录验证失败
-	// } else {
-	// Dialog.assertActionEvent(event, ActionEventType.SUCCESS);
-	// }
-	// }
-	// }
+	private void openServerDialog() throws LoginException,
+			InterruptedException, TransferException, RequestTimeoutException,
+			DialogException, SystemException {
+		// 判断是否有飞信号
+		if (this.context.getFetionUser().getFetionId() == 0) {
+			throw new IllegalArgumentException(
+					"Invalid fetion id. if disabled SSI sign, you must login with fetion id..");
+		}
+
+		this.updateLoginState(LoginState.SIPC_REGISTER_DOING, null);
+		ServerDialog serverDialog = this.context.getDialogFactory()
+				.createServerDialog();
+		serverDialog.openDialog();
+
+		ActionEventFuture future = new ActionEventFuture();
+		ActionEventListener listener = new FutureActionEventListener(future);
+
+		// 注册服务器
+		serverDialog.register(presence, listener);
+		Dialog.assertActionEvent(future.waitActionEventWithException(),
+				ActionEventType.SUCCESS);
+
+		// 用户验证
+		future.clear();
+		serverDialog.userAuth(presence, listener);
+		ActionEvent event = future.waitActionEventWithoutException();
+		if (event.getEventType() == ActionEventType.SUCCESS) {
+			this.updateLoginState(LoginState.SIPC_REGISGER_SUCCESS, null);
+		} else if (event.getEventType() == ActionEventType.FAILURE) {
+			FailureEvent evt = (FailureEvent) event;
+			FailureType type = evt.getFailureType();
+			if (type == FailureType.REGISTER_FORBIDDEN) {
+				throw new LoginException(LoginState.SIPC_ACCOUNT_FORBIDDEN); //
+				// 帐号限制登录，可能存在不安全因素，请修改密码后再登录
+			} else if (type == FailureType.AUTHORIZATION_FAIL) {
+				throw new LoginException(LoginState.SIPC_AUTH_FAIL); // 登录验证失败
+			} else {
+				Dialog.assertActionEvent(event, ActionEventType.SUCCESS);
+			}
+		}
+	}
 
 	/**
 	 * 获取联系人信息

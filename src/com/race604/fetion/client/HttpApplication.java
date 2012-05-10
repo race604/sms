@@ -25,8 +25,6 @@
  */
 package com.race604.fetion.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -34,15 +32,14 @@ import java.net.URL;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
+import android.graphics.Bitmap;
+import android.util.Base64;
+
 import com.race604.fetion.data.Buddy;
 import com.race604.fetion.data.FetionConfig;
 import com.race604.fetion.data.LocaleSetting;
 import com.race604.fetion.data.User;
 import com.race604.fetion.data.VerifyImage;
-import com.race604.fetion.data.XMLHelper;
-
-import android.graphics.Bitmap;
-import android.util.Base64;
 
 /**
  * 
@@ -128,7 +125,7 @@ public class HttpApplication {
 	 */
 	public static VerifyImage fetchVerifyImage(User user,
 			LocaleSetting setting, String alg, String type) throws IOException,
-			JDOMException {
+			JDOMException, ParseException {
 		String picurl = setting.getNodeText("/config/servers/get-pic-code");
 		if (picurl == null)
 			picurl = FetionConfig.getString("server.verify-pic-uri");

@@ -25,10 +25,12 @@
  */
 package com.race604.fetion.client;
 
+import com.race604.fetion.client.dialog.DialogFactory;
 import com.race604.fetion.data.FetionException;
 import com.race604.fetion.data.FetionStore;
 import com.race604.fetion.data.LocaleSetting;
 import com.race604.fetion.data.User;
+import com.race604.fetion.net.TransferFactory;
 
 /**
  *
@@ -43,7 +45,7 @@ public interface FetionContext
 	 * 返回对话框工厂
 	 * @return
 	 */
-//	public DialogFactory getDialogFactory();
+	public DialogFactory getDialogFactory();
 	
 	/**
 	 * 返回聊天对话代理工厂
@@ -55,19 +57,19 @@ public interface FetionContext
 	 * 返回传输工厂
 	 * @return
 	 */
-//	public TransferFactory getTransferFactory();
+	public TransferFactory getTransferFactory();
 
 	/**
 	 * 返回单线程执行器
 	 * @return
 	 */
-//	public FetionExecutor getFetionExecutor();
+	public FetionExecutor getFetionExecutor();
 
 	/**
 	 * 返回全局的定时器
 	 * @return
 	 */
-//	public FetionTimer getFetionTimer();
+	public FetionTimer getFetionTimer();
 
 	/**
 	 * 返回飞信用户

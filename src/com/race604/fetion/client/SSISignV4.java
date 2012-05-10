@@ -45,7 +45,6 @@ import com.race604.fetion.data.LocaleSetting;
 import com.race604.fetion.data.LoginState;
 import com.race604.fetion.data.User;
 import com.race604.fetion.data.VerifyImage;
-import com.race604.fetion.data.XMLHelper;
 
 /**
  *
@@ -212,6 +211,7 @@ public class SSISignV4 implements SSISign
         	Log.w(TAG, "fetch verify image failed.",e );
         } catch (JDOMException e) {
         	Log.w(TAG, "fetch verify image failed.",e );
+		} catch (ParseException e) {
 		}
     }
     
